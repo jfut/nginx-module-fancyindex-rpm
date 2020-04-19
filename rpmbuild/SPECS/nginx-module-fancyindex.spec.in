@@ -1,0 +1,62 @@
+%define nginx_version   @NGINX_VERSION@
+%define nginx_build_dir %{_builddir}/nginx-%{nginx_version}
+%define mod_name        fancyindex
+%define mod_base_dir    ngx-%{mod_name}
+
+Summary: Nginx module to use PAM for simple http authentication
+Name: nginx-module-fancyindex
+Version: 0.4.4
+Release: 1%{?dist}
+License: BSD-2-Clause
+URL: https://github.com/sto/ngx_http_fancyindex_module
+
+Source0: https://nginx.org/download/nginx-%{nginx_version}.tar.gz
+Source1: https://github.com/aperezdc/ngx-fancyindex/releases/download/v%{version}/ngx-fancyindex-%{version}.tar.xz
+
+Requires: nginx = 1:%{nginx_version}
+BuildRequires: autoconf
+BuildRequires: automake
+BuildRequires: gd-devel
+BuildRequires: gperftools-devel
+BuildRequires: libtool
+BuildRequires: libxslt-devel
+BuildRequires: nginx
+BuildRequires: openssl-devel
+BuildRequires: pcre-devel
+BuildRequires: perl-devel
+BuildRequires: perl(ExtUtils::Embed)
+BuildRequires: zlib-devel
+# module dependencies
+#BuildRequires: xxx
+
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+
+%description
+Nginx module to use PAM for simple http authentication.
+
+%prep
+%setup -q -n nginx-%{nginx_version}
+%setup -T -D -b 1 -n %{mod_base_dir}-%{version}
+
+%build
+cd %{_builddir}/nginx-%{nginx_version}
+./configure %(nginx -V 2>&1 | grep 'configure arguments' | sed -r 's@^[^:]+: @@') --add-dynamic-module=../%{mod_base_dir}-%{version}
+make modules
+
+%install
+%{__rm} -rf %{buildroot}
+
+%{__install} -Dm755 %{nginx_build_dir}/objs/ngx_http_fancyindex_module.so \
+    $RPM_BUILD_ROOT%{_libdir}/nginx/modules/ngx_http_fancyindex_module.so
+
+%clean
+%{__rm} -rf %{buildroot}
+
+%files
+%defattr(-,root,root)
+%{_libdir}/nginx/modules/*.so
+%doc CHANGELOG.md HACKING.md LICENSE README.rst
+
+%changelog
+* Sun Apr 19 2020 Jun Futagawa <jfut@integ.jp> 0.4.4-1
+- Initial release
