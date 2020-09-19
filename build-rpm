@@ -4,18 +4,22 @@
 #
 # @author Jun Futagawa
 
+set -e
+set -u
+
+export LC_ALL=C
+
 BUILD_PACKAGES="autoconf automake libtool gcc make rpm-build rpmdevtools"
 MAX_RETRY="10"
 
 if [[ $# -lt 2 ]]; then
-    echo $0 RPMBUILD_DIR SPEC_FILE_NAME
+    echo $0 RPMBUILD_DIR SPEC_FILE_NAME [MODULE_VERSION]
     exit 1
 fi
 
-RPMBUILD_DIR="$1"
-SPEC_FILE_NAME="$2"
-
-export LC_ALL=C
+RPMBUILD_DIR="${1}"
+SPEC_FILE_NAME="${2}"
+MODULE_VERSION="${3:-}"
 
 pushd "${RPMBUILD_DIR}"
 
@@ -28,10 +32,15 @@ if [[ -f /usr/bin/dnf ]]; then
     PACKAGE_MANAGER="dnf"
     dnf -y install epel-release
     dnf clean all
+    # check module version
+    if [[ -z "${MODULE_VERSION}" ]]; then
+        echo "Error: MODULE_VERSION is required for el8 or later"
+        exit 1
+    fi
     echo
-    echo "Installing nginx:mainline/common"
     dnf -y module reset nginx
-    dnf -y module install nginx:mainline/common
+    echo "Installing nginx:${MODULE_VERSION}"
+    dnf -y module install nginx:${MODULE_VERSION}/common
 else
     PACKAGE_MANAGER="yum"
     yum -y install epel-release
@@ -82,6 +91,9 @@ spectool -g -A "SPECS/${SPEC_FILE_NAME}" -C SOURCES/
 
 echo "Building RPM:"
 RPM_DIST=$(egrep "\%dist" /etc/rpm/macros.dist | awk '{ print $2 }' | sed -E 's|^(\..*)\..*|\1|')
+if [[ ! -z "${MODULE_VERSION}" ]]; then
+    RPM_DIST=$(echo "${RPM_DIST}" | sed -r "s/^\.(.*)/.module_\1.${MODULE_VERSION}/")
+fi
 rpmbuild \
     --define "%_topdir ${RPMBUILD_DIR}" \
     --define "%dist ${RPM_DIST}" \

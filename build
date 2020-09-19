@@ -2,6 +2,8 @@
 #
 # Build RPM  with docker
 
+set -e
+set -u
 
 DOCKER_RPMBUILD_DIR="/pkg/rpmbuild"
 SPEC_FILE_NAME="nginx-module-fancyindex.spec"
@@ -11,17 +13,23 @@ HOST_RPMBUILD_DIR="${SCRIPT_DIR}/rpmbuild"
 
 PACKAGER="$(basename "${0}")"
 
+DEBUG="no"
+
 # Usage
 usage() {
     cat << _EOF_
 Usage:
-    ${PACKAGER} [-d] [-h] BUILD_IMAGE_NAME
+    ${PACKAGER} [-d] [-h] BUILD_IMAGE_NAME:BUILD_IMAGE_TAG[:MODULE_VERSION]
 
     Options:
         -d Debug mode.
 
-    Build for CentOS 8:
-        ${PACKAGER} centos:8
+    Build for CentOS 8 + AppStream module:
+	# ${PACKAGER} centos:8:1.14 1.14 (not supported)
+        ${PACKAGER} centos:8:1.16
+
+    Build for CentOS 8 + EPEL Stream module:
+        ${PACKAGER} centos:8:mainline
 
     Build for CentOS 7:
         ${PACKAGER} centos:7
@@ -40,13 +48,19 @@ setup_dir() {
 }
 
 build() {
-    local BUILD_IMAGE="$1"
+    local BUILD_ARGS="$1"
 
-    local BUILD_HOSTNAME="rpmbuild.$(echo ${BUILD_IMAGE} | tr -d ':').docker"
+    local BUILD_IMAGE_NAME=$(echo ${BUILD_ARGS} | cut -d':' -f 1)
+    local BUILD_IMAGE_TAG=$(echo ${BUILD_ARGS} | cut -d':' -f 2)
+    local MODULE_VERSION=$(echo ${BUILD_ARGS} | cut -d':' -f 3)
+
+    local BUILD_IMAGE="${BUILD_IMAGE_NAME}:${BUILD_IMAGE_TAG}" 
+    local BUILD_HOSTNAME="rpmbuild.${BUILD_IMAGE_NAME}${BUILD_IMAGE_TAG}.docker"
 
     local DOCKER_OPTIONS=""
-    local BUILD_CMD="$(dirname ${DOCKER_RPMBUILD_DIR})/build-rpm ${DOCKER_RPMBUILD_DIR} ${SPEC_FILE_NAME}"
+    local BUILD_CMD="$(dirname ${DOCKER_RPMBUILD_DIR})/build-rpm ${DOCKER_RPMBUILD_DIR} ${SPEC_FILE_NAME} ${MODULE_VERSION}"
     if [[ "${DEBUG}" = "yes" ]]; then
+        echo "# Manual Build: ${BUILD_CMD}"
         DOCKER_OPTIONS="-it"
         BUILD_CMD="/bin/bash"
     fi
