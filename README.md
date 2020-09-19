@@ -8,18 +8,16 @@ RPM Packaging for [ngx-fancyindex](https://github.com/aperezdc/ngx-fancyindex).
 
 - [Download](https://github.com/jfut/nginx-module-fancyindex-rpm/releases)
 - Install:
-
-```
-# el7
-yum install nginx-module-fancyindex-0.4.4-2.el7.x86_64.rpm
-
-# el8 + module 1.16 stream
-dnf install nginx-module-fancyindex-0.4.4-2.module_el8.1.16.x86_64.rpm
-
-# el8 + EPEL module mainline stream
-dnf install nginx-module-fancyindex-0.4.4-2.module_el8.mainline.x86_64.rpm
-```
-
+    ```
+    # el7
+    yum install nginx-module-fancyindex-0.4.4-2.el7.x86_64.rpm
+    
+    # el8 + module 1.16 stream
+    dnf install nginx-module-fancyindex-0.4.4-2.module_el8.1.16.x86_64.rpm
+    
+    # el8 + EPEL module mainline stream
+    dnf install nginx-module-fancyindex-0.4.4-2.module_el8.mainline.x86_64.rpm
+    ```
 - Add `load_module` in `nginx.conf`:
     ```
     load_module "modules/ngx_http_fancyindex_module.so";
