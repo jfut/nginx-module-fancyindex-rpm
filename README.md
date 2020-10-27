@@ -10,13 +10,13 @@ RPM Packaging for [ngx-fancyindex](https://github.com/aperezdc/ngx-fancyindex).
 - Install:
     ```
     # el7
-    yum install nginx-module-fancyindex-0.5.0-1.el7.x86_64.rpm
+    yum install nginx-module-fancyindex-0.5.1-1.el7.x86_64.rpm
     
     # el8 + module 1.16 stream
-    dnf install nginx-module-fancyindex-0.5.0-1.module_el8.1.16.x86_64.rpm
+    dnf install nginx-module-fancyindex-0.5.1-1.module_el8.1.16.x86_64.rpm
     
     # el8 + EPEL module mainline stream
-    dnf install nginx-module-fancyindex-0.5.0-1.module_el8.mainline.x86_64.rpm
+    dnf install nginx-module-fancyindex-0.5.1-1.module_el8.mainline.x86_64.rpm
     ```
 - Add `load_module` in `nginx.conf`:
     ```
@@ -65,8 +65,8 @@ You can build RPM packages in Docker.
 e.g.:
 
 ```
-git tag -a v0.5.0-1 -m "v0.5.0-1"
-git push origin refs/tags/v0.5.0-1
+git tag -a v0.5.1-1 -m "v0.5.1-1"
+git push origin refs/tags/v0.5.1-1
 ```
 
 ## License
