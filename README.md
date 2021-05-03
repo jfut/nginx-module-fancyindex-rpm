@@ -2,7 +2,7 @@
 
 [![Build Status](https://github.com/jfut/nginx-module-fancyindex-rpm/workflows/test/badge.svg?branch=master)](https://github.com/jfut/nginx-module-fancyindex-rpm/actions?query=workflow%3Atest)
 
-RPM Packaging for [ngx-fancyindex](https://github.com/aperezdc/ngx-fancyindex).
+[ngx-fancyindex](https://github.com/aperezdc/ngx-fancyindex) RPM Packaging for RHEL/CentOS/others.
 
 ## Install an RPM package
 
@@ -10,13 +10,16 @@ RPM Packaging for [ngx-fancyindex](https://github.com/aperezdc/ngx-fancyindex).
 - Install:
     ```
     # el7
-    yum install nginx-module-fancyindex-0.5.1-1.el7.x86_64.rpm
+    yum install nginx-module-fancyindex-0.5.1-2.el7.x86_64.rpm
     
     # el8 + module 1.16 stream
-    dnf install nginx-module-fancyindex-0.5.1-1.module_el8.1.16.x86_64.rpm
+    dnf install nginx-module-fancyindex-0.5.1-2.module_el8.1.16.x86_64.rpm
+
+    # el8 + module 1.18 stream
+    dnf install nginx-module-fancyindex-0.5.1-2.module_el8.1.18.x86_64.rpm
     
     # el8 + EPEL module mainline stream
-    dnf install nginx-module-fancyindex-0.5.1-1.module_el8.mainline.x86_64.rpm
+    dnf install nginx-module-fancyindex-0.5.1-2.module_el8.mainline.x86_64.rpm
     ```
 - Add `load_module` in `nginx.conf`:
     ```
@@ -35,7 +38,7 @@ Usage:
         -d Debug mode.
 
     Build for CentOS 8 + AppStream module:
-        # build centos:8:1.14 1.14 (not supported)
+        # build centos:8:1.14 (not supported)
         build centos:8:1.16
         build centos:8:1.18
 
@@ -66,8 +69,8 @@ You can build RPM packages in Docker.
 e.g.:
 
 ```
-git tag -a v0.5.1-1 -m "v0.5.1-1"
-git push origin refs/tags/v0.5.1-1
+git tag -a v0.5.1-2 -m "v0.5.1-2"
+git push origin refs/tags/v0.5.1-2
 ```
 
 ## License
