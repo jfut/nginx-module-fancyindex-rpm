@@ -27,6 +27,7 @@ Usage:
     Build for CentOS 8 + AppStream module:
 	# ${PACKAGER} centos:8:1.14 1.14 (not supported)
         ${PACKAGER} centos:8:1.16
+        ${PACKAGER} centos:8:1.18
 
     Build for CentOS 8 + EPEL Stream module:
         ${PACKAGER} centos:8:mainline

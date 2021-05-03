@@ -29,6 +29,7 @@ jobs:
         image:
           - centos-7
           - centos-8-1.16
+          - centos-8-1.18
           - centos-8-mainline
 
     env:

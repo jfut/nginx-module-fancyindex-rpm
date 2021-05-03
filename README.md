@@ -37,6 +37,7 @@ Usage:
     Build for CentOS 8 + AppStream module:
         # build centos:8:1.14 1.14 (not supported)
         build centos:8:1.16
+        build centos:8:1.18
 
     Build for CentOS 8 + EPEL Stream module:
         build centos:8:mainline
@@ -50,14 +51,14 @@ Usage:
 You can build RPM packages in Docker.
 
 ```
-./build
+./build centos:8:1.18
 ```
 
 - Debug shell
 
 ```
-./build -d
-/pkg/build-rpm /pkg/rpmbuild nginx-module-fancyindex.spec 1.6
+./build -d centos:8:1.18
+/pkg/build-rpm /pkg/rpmbuild nginx-module-fancyindex.spec 1.18
 ```
 
 ## Release tag
