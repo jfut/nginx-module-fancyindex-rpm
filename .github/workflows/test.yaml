@@ -3,7 +3,13 @@ name: test
 on:
   push:
     branches:
-      - "**"
+      - '*'
+    tags-ignore:
+      - 'v[0-9]+.[0-9]+.[0-9]+-*'
+    paths-ignore:
+      - '.gitignore'
+      - 'LICENSE'
+      - 'README.md'
 
 jobs:
   test:
@@ -18,6 +24,7 @@ jobs:
 
     env:
       BUILD_IMAGE: ${{ matrix.image }}
+      BUILD_HOSTNAME: ${{ matrix.image }}.github.integ.jp
 
     steps:
       - name: Checkout

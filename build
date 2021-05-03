@@ -55,7 +55,7 @@ build() {
     local MODULE_VERSION=$(echo ${BUILD_ARGS} | cut -d':' -f 3)
 
     local BUILD_IMAGE="${BUILD_IMAGE_NAME}:${BUILD_IMAGE_TAG}" 
-    local BUILD_HOSTNAME="rpmbuild.${BUILD_IMAGE_NAME}${BUILD_IMAGE_TAG}.docker"
+    local BUILD_HOSTNAME="${BUILD_HOSTNAME:-${HOSTNAME}}"
 
     local DOCKER_OPTIONS=""
     local BUILD_CMD="$(dirname ${DOCKER_RPMBUILD_DIR})/build-rpm ${DOCKER_RPMBUILD_DIR} ${SPEC_FILE_NAME} ${MODULE_VERSION}"
