@@ -10,22 +10,22 @@
 - Install:
     ```
     # el7
-    yum install nginx-module-fancyindex-0.5.1-2.el7.x86_64.rpm
+    yum install nginx-module-fancyindex-0.5.2-1.el7.x86_64.rpm
     
     # el8 + AppStream module 1.16 stream
-    dnf install nginx-module-fancyindex-0.5.1-2.module_el8.1.16.x86_64.rpm
+    dnf install nginx-module-fancyindex-0.5.2-1.module_el8.1.16.x86_64.rpm
 
     # el8 + AppStream module 1.18 stream
-    dnf install nginx-module-fancyindex-0.5.1-2.module_el8.1.18.x86_64.rpm
+    dnf install nginx-module-fancyindex-0.5.2-1.module_el8.1.18.x86_64.rpm
 
     # el8 + AppStream module 1.20 stream
-    dnf install nginx-module-fancyindex-0.5.1-2.module_el8.1.20.x86_64.rpm
+    dnf install nginx-module-fancyindex-0.5.2-1.module_el8.1.20.x86_64.rpm
     
     # el8 + EPEL module 1.20 stream
-    dnf install nginx-module-fancyindex-0.5.1-2.module_el8.epel.1.20.x86_64.rpm
+    dnf install nginx-module-fancyindex-0.5.2-1.module_el8.epel.1.20.x86_64.rpm
 
     # el8 + EPEL module mainline stream (currently: 1.21)
-    dnf install nginx-module-fancyindex-0.5.1-2.module_el8.epel.mainline.x86_64.rpm
+    dnf install nginx-module-fancyindex-0.5.2-1.module_el8.epel.mainline.x86_64.rpm
     ```
 - Add `load_module` in `nginx.conf`:
     ```
@@ -77,8 +77,8 @@ You can build RPM packages in Docker.
 e.g.:
 
 ```
-git tag -a v0.5.1-2 -m "v0.5.1-2"
-git push origin refs/tags/v0.5.1-2
+git tag -a v0.5.2-1 -m "v0.5.2-1"
+git push origin refs/tags/v0.5.2-1
 ```
 
 ## License
