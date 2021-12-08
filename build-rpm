@@ -13,38 +13,48 @@ BUILD_PACKAGES="autoconf automake libtool gcc make rpm-build rpmdevtools"
 MAX_RETRY="10"
 
 if [[ $# -lt 2 ]]; then
-    echo $0 RPMBUILD_DIR SPEC_FILE_NAME [MODULE_VERSION]
+    echo $0 RPMBUILD_DIR SPEC_FILE_NAME [REPOSITORY] [MODULE_VERSION]
     exit 1
 fi
 
 RPMBUILD_DIR="${1}"
 SPEC_FILE_NAME="${2}"
-MODULE_VERSION="${3:-}"
+REPOSITORY="${3:-}"
+MODULE_VERSION="${4:-}"
 
 pushd "${RPMBUILD_DIR}"
 
-# install epel-release and setup spec file
+# install nginx and setup spec file
 echo
-echo "Installing epel-release"
+echo "Installing nginx"
 PACKAGE_MANAGER=""
 if [[ -f /usr/bin/dnf ]]; then
     # el8 or later
     PACKAGE_MANAGER="dnf"
-    dnf -y install epel-release
-    dnf clean all
+
     # check module version
     if [[ -z "${MODULE_VERSION}" ]]; then
         echo "Error: MODULE_VERSION is required for el8 or later"
         exit 1
     fi
+
+    # install epel-release
+    if [[ "${REPOSITORY}" = "epel-modular" ]]; then
+        dnf -y install epel-release
+        dnf clean all
+    fi
+
+    # install nginx
     echo
     dnf -y module reset nginx
-    echo "Installing nginx:${MODULE_VERSION}"
+    echo "Installing nginx:${MODULE_VERSION} on ${REPOSITORY}"
     dnf -y module install nginx:${MODULE_VERSION}/common
 else
     PACKAGE_MANAGER="yum"
     yum -y install epel-release
+    yum -y install nginx
 fi
+# 1:1.20.0-2.module_el8.5.0+899+43b718f6 -> 1.20.0
 NGINX_VERSION=$(${PACKAGE_MANAGER} list -q nginx | grep nginx.x86_64 | awk '{ print $2 }' | grep -oP '(?<=:).+(?=-)')
 sed -e "s/@NGINX_VERSION@/${NGINX_VERSION}/g" "SPECS/${SPEC_FILE_NAME}.in" > "SPECS/${SPEC_FILE_NAME}"
 
@@ -92,7 +102,11 @@ spectool -g -A "SPECS/${SPEC_FILE_NAME}" -C SOURCES/
 echo "Building RPM:"
 RPM_DIST=$(egrep "\%dist" /etc/rpm/macros.dist | awk '{ print $2 }' | sed -E 's|^(\..*)\..*|\1|')
 if [[ ! -z "${MODULE_VERSION}" ]]; then
-    RPM_DIST=$(echo "${RPM_DIST}" | sed -r "s/^\.(.*)/.module_\1.${MODULE_VERSION}/")
+    if [[ "${REPOSITORY}" = "epel-modular" ]]; then
+        RPM_DIST=$(echo "${RPM_DIST}" | sed -r "s/^\.(.*)/.module_\1.epel.${MODULE_VERSION}/")
+    else
+        RPM_DIST=$(echo "${RPM_DIST}" | sed -r "s/^\.(.*)/.module_\1.${MODULE_VERSION}/")
+    fi
 fi
 rpmbuild \
     --define "%_topdir ${RPMBUILD_DIR}" \

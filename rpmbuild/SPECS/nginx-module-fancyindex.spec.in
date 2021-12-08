@@ -5,8 +5,8 @@
 
 Summary: Nginx module to use PAM for simple http authentication
 Name: nginx-module-fancyindex
-Version: 0.5.1
-Release: 2%{?dist}
+Version: 0.5.2
+Release: 1%{?dist}
 License: BSD-2-Clause
 URL: https://github.com/sto/ngx_http_fancyindex_module
 
@@ -17,7 +17,9 @@ Requires: nginx = 1:%{nginx_version}
 BuildRequires: autoconf
 BuildRequires: automake
 BuildRequires: gd-devel
+%if 0%{?rhel} == 7
 BuildRequires: gperftools-devel
+%endif
 BuildRequires: libtool
 BuildRequires: libxslt-devel
 BuildRequires: nginx
@@ -58,6 +60,10 @@ make modules
 %doc CHANGELOG.md HACKING.md LICENSE README.rst
 
 %changelog
+* Wed Dec  8 2021 Jun Futagawa <jfut@integ.jp> 0.5.2-1
+- Update to version 0.5.2
+- Change the package naming convention for EPEL module to avoid conflicts with AppStream module
+
 * Mon May  3 2021 Jun Futagawa <jfut@integ.jp> 0.5.1-2
 - Add build for nginx 1.18 of CentOS 8 AppStream module
 

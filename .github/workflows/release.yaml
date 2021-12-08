@@ -27,10 +27,12 @@ jobs:
     strategy:
       matrix:
         image:
-          - centos-7
-          - centos-8-1.16
-          - centos-8-1.18
-          - centos-8-mainline
+          - centos_7
+          - centos_8_appstream_1.16
+          - centos_8_appstream_1.18
+          - centos_8_appstream_1.20
+          - centos_8_epel-modular_1.20
+          - centos_8_epel-modular_mainline
 
     env:
       BUILD_IMAGE: ${{ matrix.image }}
@@ -44,7 +46,7 @@ jobs:
       - name: Build RPM
         id: build_rpm
         run: |
-          ./build $(echo ${BUILD_IMAGE} | sed 's/-/:/g')
+          ./build $(echo ${BUILD_IMAGE} | sed 's/_/:/g')
           echo "##[set-output name=release-tag;]$(echo ${{ github.ref }} | sed -e 's|refs/tags/||g')"
       - name: Upload Assets
         uses: AButler/upload-release-assets@v2.0

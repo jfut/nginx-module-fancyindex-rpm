@@ -19,18 +19,20 @@ DEBUG="no"
 usage() {
     cat << _EOF_
 Usage:
-    ${PACKAGER} [-d] [-h] BUILD_IMAGE_NAME:BUILD_IMAGE_TAG[:MODULE_VERSION]
+    ${PACKAGER} [-d] [-h] BUILD_IMAGE_NAME:BUILD_IMAGE_TAG[:REPOSITORY][:MODULE_VERSION]
 
     Options:
         -d Debug mode.
 
     Build for CentOS 8 + AppStream module:
-	# ${PACKAGER} centos:8:1.14 (not supported)
-        ${PACKAGER} centos:8:1.16
-        ${PACKAGER} centos:8:1.18
+        # ${PACKAGER} centos:8:appstream:1.14 (not supported)
+        ${PACKAGER} centos:8:appstream:1.16
+        ${PACKAGER} centos:8:appstream:1.18
+        ${PACKAGER} centos:8:appstream:1.20
 
     Build for CentOS 8 + EPEL Stream module:
-        ${PACKAGER} centos:8:mainline
+        ${PACKAGER} centos:8:epel-modular:1.20
+        ${PACKAGER} centos:8:epel-modular:mainline
 
     Build for CentOS 7:
         ${PACKAGER} centos:7
@@ -53,13 +55,14 @@ build() {
 
     local BUILD_IMAGE_NAME=$(echo ${BUILD_ARGS} | cut -d':' -f 1)
     local BUILD_IMAGE_TAG=$(echo ${BUILD_ARGS} | cut -d':' -f 2)
-    local MODULE_VERSION=$(echo ${BUILD_ARGS} | cut -d':' -f 3)
+    local REPOSITORY=$(echo ${BUILD_ARGS} | cut -d':' -f 3)
+    local MODULE_VERSION=$(echo ${BUILD_ARGS} | cut -d':' -f 4)
 
     local BUILD_IMAGE="${BUILD_IMAGE_NAME}:${BUILD_IMAGE_TAG}" 
     local BUILD_HOSTNAME="${BUILD_HOSTNAME:-${HOSTNAME}}"
 
     local DOCKER_OPTIONS=""
-    local BUILD_CMD="$(dirname ${DOCKER_RPMBUILD_DIR})/build-rpm ${DOCKER_RPMBUILD_DIR} ${SPEC_FILE_NAME} ${MODULE_VERSION}"
+    local BUILD_CMD="$(dirname ${DOCKER_RPMBUILD_DIR})/build-rpm ${DOCKER_RPMBUILD_DIR} ${SPEC_FILE_NAME} ${REPOSITORY} ${MODULE_VERSION}"
     if [[ "${DEBUG}" = "yes" ]]; then
         echo "# Manual Build: ${BUILD_CMD}"
         DOCKER_OPTIONS="-it"

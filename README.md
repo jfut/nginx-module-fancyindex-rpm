@@ -12,14 +12,20 @@
     # el7
     yum install nginx-module-fancyindex-0.5.1-2.el7.x86_64.rpm
     
-    # el8 + module 1.16 stream
+    # el8 + AppStream module 1.16 stream
     dnf install nginx-module-fancyindex-0.5.1-2.module_el8.1.16.x86_64.rpm
 
-    # el8 + module 1.18 stream
+    # el8 + AppStream module 1.18 stream
     dnf install nginx-module-fancyindex-0.5.1-2.module_el8.1.18.x86_64.rpm
+
+    # el8 + AppStream module 1.20 stream
+    dnf install nginx-module-fancyindex-0.5.1-2.module_el8.1.20.x86_64.rpm
     
-    # el8 + EPEL module mainline stream
-    dnf install nginx-module-fancyindex-0.5.1-2.module_el8.mainline.x86_64.rpm
+    # el8 + EPEL module 1.20 stream
+    dnf install nginx-module-fancyindex-0.5.1-2.module_el8.epel.1.20.x86_64.rpm
+
+    # el8 + EPEL module mainline stream (currently: 1.21)
+    dnf install nginx-module-fancyindex-0.5.1-2.module_el8.epel.mainline.x86_64.rpm
     ```
 - Add `load_module` in `nginx.conf`:
     ```
@@ -32,18 +38,20 @@
 
 ```
 Usage:
-    build [-d] [-h] BUILD_IMAGE_NAME:BUILD_IMAGE_TAG[:MODULE_VERSION]
+    build [-d] [-h] BUILD_IMAGE_NAME:BUILD_IMAGE_TAG[:REPOSITORY][:MODULE_VERSION]
 
     Options:
         -d Debug mode.
 
     Build for CentOS 8 + AppStream module:
-        # build centos:8:1.14 (not supported)
-        build centos:8:1.16
-        build centos:8:1.18
+        # build centos:8:appstream:1.14 (not supported)
+        build centos:8:appstream:1.16
+        build centos:8:appstream:1.18
+        build centos:8:appstream:1.20
 
     Build for CentOS 8 + EPEL Stream module:
-        build centos:8:mainline
+        build centos:8:epel-modular:1.20
+        build centos:8:epel-modular:mainline
 
     Build for CentOS 7:
         build centos:7
@@ -54,14 +62,14 @@ Usage:
 You can build RPM packages in Docker.
 
 ```
-./build centos:8:1.18
+./build centos:8:appstream:1.20
 ```
 
 - Debug shell
 
 ```
-./build -d centos:8:1.18
-/pkg/build-rpm /pkg/rpmbuild nginx-module-fancyindex.spec 1.18
+./build -d centos:8:appstream:1.20
+/pkg/build-rpm /pkg/rpmbuild nginx-module-fancyindex.spec appstream 1.20
 ```
 
 ## Release tag
