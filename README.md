@@ -14,21 +14,22 @@
     
     # el8 + AppStream module 1.16 stream
     dnf install nginx-module-fancyindex-0.5.2-2.module_el8.1.16.x86_64.rpm
-
+    
     # el8 + AppStream module 1.18 stream
     dnf install nginx-module-fancyindex-0.5.2-2.module_el8.1.18.x86_64.rpm
-
+    
     # el8 + AppStream module 1.20 stream
     dnf install nginx-module-fancyindex-0.5.2-2.module_el8.1.20.x86_64.rpm
     
     # el8 + EPEL module 1.20 stream
     dnf install nginx-module-fancyindex-0.5.2-2.module_el8.epel.1.20.x86_64.rpm
-
+    
     # el8 + EPEL module mainline stream (currently: 1.21)
     dnf install nginx-module-fancyindex-0.5.2-2.module_el8.epel.mainline.x86_64.rpm
-    ```
+    
     # el7
     yum install nginx-module-fancyindex-0.5.2-2.el7.x86_64.rpm
+    ```
 
 - Add `load_module` in `nginx.conf`:
     ```
@@ -46,20 +47,20 @@ Usage:
     Options:
         -d Debug mode.
 
-    Build for RHEL/AlmaLinux/Rocky 9 + AppStream module:
+    Build for RHEL/AlmaLinux/Rocky Linux 9 + AppStream module:
         build almalinux:9:appstream:1.20
 
-    Build for RHEL/AlmaLinux/Rocky 8 + AppStream module:
+    Build for RHEL/AlmaLinux/Rocky Linux 8 + AppStream module:
         # build almalinux:8:appstream:1.14 (not supported)
         build almalinux:8:appstream:1.16
         build almalinux:8:appstream:1.18
         build almalinux:8:appstream:1.20
 
-    Build for CentOS 8 + EPEL Stream module:
+    Build for RHEL/AlmaLinux/Rocky Linux 8 + EPEL Stream module:
         build almalinux:8:epel-modular:1.20
         build almalinux:8:epel-modular:mainline
 
-    Build for CentOS 7:
+    Build for RHEL/CentOS 7:
         build centos:7
 ```
 
