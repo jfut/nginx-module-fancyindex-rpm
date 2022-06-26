@@ -28,11 +28,12 @@ jobs:
       matrix:
         image:
           - centos_7
-          - centos_8_appstream_1.16
-          - centos_8_appstream_1.18
-          - centos_8_appstream_1.20
-          - centos_8_epel-modular_1.20
-          - centos_8_epel-modular_mainline
+          - almalinux_9_appstream_1.16
+          - almalinux_9_appstream_1.18
+          - almalinux_9_appstream_1.20
+          - almalinux_9_epel-modular_1.20
+          - almalinux_9_epel-modular_mainline
+          - almalinux_9_appstream_1.20
 
     env:
       BUILD_IMAGE: ${{ matrix.image }}

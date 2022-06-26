@@ -24,15 +24,18 @@ Usage:
     Options:
         -d Debug mode.
 
-    Build for CentOS 8 + AppStream module:
-        # ${PACKAGER} centos:8:appstream:1.14 (not supported)
-        ${PACKAGER} centos:8:appstream:1.16
-        ${PACKAGER} centos:8:appstream:1.18
-        ${PACKAGER} centos:8:appstream:1.20
+    Build for RHEL/AlmaLinux/Rocky 9 + AppStream module:
+        ${PACKAGER} almalinux:9:appstream:1.20
+
+    Build for RHEL/AlmaLinux/Rocky 8 + AppStream module:
+        # ${PACKAGER} almalinux:8:appstream:1.14 (not supported)
+        ${PACKAGER} almalinux:8:appstream:1.16
+        ${PACKAGER} almalinux:8:appstream:1.18
+        ${PACKAGER} almalinux:8:appstream:1.20
 
     Build for CentOS 8 + EPEL Stream module:
-        ${PACKAGER} centos:8:epel-modular:1.20
-        ${PACKAGER} centos:8:epel-modular:mainline
+        ${PACKAGER} almalinux:8:epel-modular:1.20
+        ${PACKAGER} almalinux:8:epel-modular:mainline
 
     Build for CentOS 7:
         ${PACKAGER} centos:7
@@ -70,7 +73,7 @@ build() {
     fi
 
     # Update build image
-    docker pull ${BUILD_IMAGE}
+    docker pull "${BUILD_IMAGE}"
 
     # Build
     docker run \

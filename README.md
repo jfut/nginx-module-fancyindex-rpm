@@ -2,15 +2,15 @@
 
 [![Build Status](https://github.com/jfut/nginx-module-fancyindex-rpm/workflows/test/badge.svg?branch=master)](https://github.com/jfut/nginx-module-fancyindex-rpm/actions?query=workflow%3Atest)
 
-[ngx-fancyindex](https://github.com/aperezdc/ngx-fancyindex) RPM Packaging for RHEL/CentOS/others.
+[ngx-fancyindex](https://github.com/aperezdc/ngx-fancyindex) RPM Packaging for RHEL/AlmaLinux/Rocky Linux/others.
 
 ## Install an RPM package
 
 - [Download](https://github.com/jfut/nginx-module-fancyindex-rpm/releases)
 - Install:
     ```
-    # el7
-    yum install nginx-module-fancyindex-0.5.2-1.el7.x86_64.rpm
+    # el9 + AppStream module 1.20 stream
+    dnf install nginx-module-fancyindex-0.5.2-1.module_el9.1.20.x86_64.rpm
     
     # el8 + AppStream module 1.16 stream
     dnf install nginx-module-fancyindex-0.5.2-1.module_el8.1.16.x86_64.rpm
@@ -27,9 +27,12 @@
     # el8 + EPEL module mainline stream (currently: 1.21)
     dnf install nginx-module-fancyindex-0.5.2-1.module_el8.epel.mainline.x86_64.rpm
     ```
+    # el7
+    yum install nginx-module-fancyindex-0.5.2-1.el7.x86_64.rpm
+
 - Add `load_module` in `nginx.conf`:
     ```
-    load_module "modules/ngx_http_fancyindex_module.so";
+    load_module "/usr/lib64/nginx/modules/ngx_http_fancyindex_module.so";
     ```
 - Add your configuration for this module (See [the official documentation](https://github.com/aperezdc/ngx-fancyindex)).
 - `systemctl restart nginx.service`
@@ -43,15 +46,18 @@ Usage:
     Options:
         -d Debug mode.
 
-    Build for CentOS 8 + AppStream module:
-        # build centos:8:appstream:1.14 (not supported)
-        build centos:8:appstream:1.16
-        build centos:8:appstream:1.18
-        build centos:8:appstream:1.20
+    Build for RHEL/AlmaLinux/Rocky 9 + AppStream module:
+        build almalinux:9:appstream:1.20
+
+    Build for RHEL/AlmaLinux/Rocky 8 + AppStream module:
+        # build almalinux:8:appstream:1.14 (not supported)
+        build almalinux:8:appstream:1.16
+        build almalinux:8:appstream:1.18
+        build almalinux:8:appstream:1.20
 
     Build for CentOS 8 + EPEL Stream module:
-        build centos:8:epel-modular:1.20
-        build centos:8:epel-modular:mainline
+        build almalinux:8:epel-modular:1.20
+        build almalinux:8:epel-modular:mainline
 
     Build for CentOS 7:
         build centos:7
@@ -62,13 +68,13 @@ Usage:
 You can build RPM packages in Docker.
 
 ```
-./build centos:8:appstream:1.20
+./build almalinux:9:appstream:1.20
 ```
 
 - Debug shell
 
 ```
-./build -d centos:8:appstream:1.20
+./build -d almalinux:8:appstream:1.20
 /pkg/build-rpm /pkg/rpmbuild nginx-module-fancyindex.spec appstream 1.20
 ```
 
