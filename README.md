@@ -8,27 +8,35 @@
 
 - [Download](https://github.com/jfut/nginx-module-fancyindex-rpm/releases)
 - Install:
+    - RHEL/AlmaLinux/Rocky Linux 9
+    ```bash
+    # Non-modular package version 1.20
+    dnf install nginx-module-fancyindex-0.5.2-3.el9.x86_64.rpm
+    
+    # AppStream module 1.22 stream
+    dnf install nginx-module-fancyindex-0.5.2-3.module_el9.1.22.x86_64.rpm
     ```
-    # el9 + AppStream module 1.20 stream
-    dnf install nginx-module-fancyindex-0.5.2-2.module_el9.1.20.x86_64.rpm
+    - RHEL/AlmaLinux/Rocky Linux 8
+    ```bash
+    # AppStream module 1.16 stream
+    dnf install nginx-module-fancyindex-0.5.2-3.module_el8.1.16.x86_64.rpm
     
-    # el8 + AppStream module 1.16 stream
-    dnf install nginx-module-fancyindex-0.5.2-2.module_el8.1.16.x86_64.rpm
+    # AppStream module 1.18 stream
+    dnf install nginx-module-fancyindex-0.5.2-3.module_el8.1.18.x86_64.rpm
     
-    # el8 + AppStream module 1.18 stream
-    dnf install nginx-module-fancyindex-0.5.2-2.module_el8.1.18.x86_64.rpm
+    # AppStream module 1.20 stream
+    dnf install nginx-module-fancyindex-0.5.2-3.module_el8.1.20.x86_64.rpm
     
-    # el8 + AppStream module 1.20 stream
-    dnf install nginx-module-fancyindex-0.5.2-2.module_el8.1.20.x86_64.rpm
+    # AppStream module 1.22 stream
+    dnf install nginx-module-fancyindex-0.5.2-3.module_el8.1.22.x86_64.rpm
     
-    # el8 + EPEL module 1.20 stream
-    dnf install nginx-module-fancyindex-0.5.2-2.module_el8.epel.1.20.x86_64.rpm
-    
-    # el8 + EPEL module mainline stream (currently: 1.21)
-    dnf install nginx-module-fancyindex-0.5.2-2.module_el8.epel.mainline.x86_64.rpm
-    
-    # el7
-    yum install nginx-module-fancyindex-0.5.2-2.el7.x86_64.rpm
+    # EPEL module mainline stream (version: 1.23)
+    # EPEL 8 Modularity was going away on February 15, 2023
+    dnf install nginx-module-fancyindex-0.5.2-3.module_el8.epel.mainline.x86_64.rpm
+    ```
+    - RHEL/CentOS 7
+    ```bash
+    yum install nginx-module-fancyindex-0.5.2-3.el7.x86_64.rpm
     ```
 
 - Add `load_module` in `nginx.conf`:
@@ -48,16 +56,18 @@ Usage:
         -d Debug mode.
 
     Build for RHEL/AlmaLinux/Rocky Linux 9 + AppStream module:
-        build almalinux:9:appstream:1.20
+        build almalinux:9
+        build almalinux:9:appstream:1.22
 
     Build for RHEL/AlmaLinux/Rocky Linux 8 + AppStream module:
-        # build almalinux:8:appstream:1.14 (not supported)
+        # build almalinux:8 (version 1.14 is not supported)
         build almalinux:8:appstream:1.16
         build almalinux:8:appstream:1.18
         build almalinux:8:appstream:1.20
+        build almalinux:8:appstream:1.22
 
     Build for RHEL/AlmaLinux/Rocky Linux 8 + EPEL Stream module:
-        build almalinux:8:epel-modular:1.20
+        # EPEL 8 Modularity was going away on February 15, 2023
         build almalinux:8:epel-modular:mainline
 
     Build for RHEL/CentOS 7:
@@ -69,14 +79,16 @@ Usage:
 You can build RPM packages in Docker.
 
 ```
-./build almalinux:9:appstream:1.20
+# el9 + Non-modular package version
+./build almalinux:9
 ```
 
 - Debug shell
 
 ```
-./build -d almalinux:8:appstream:1.20
-/pkg/build-rpm /pkg/rpmbuild nginx-module-fancyindex.spec appstream 1.20
+# el8 + Modular package version + debug
+./build -d almalinux:8:appstream:1.22
+/pkg/build-rpm /pkg/rpmbuild nginx-module-fancyindex.spec appstream 1.22
 ```
 
 ## Release tag
@@ -84,11 +96,10 @@ You can build RPM packages in Docker.
 e.g.:
 
 ```
-git tag -a v0.5.2-2 -m "v0.5.2-2"
-git push origin refs/tags/v0.5.2-2
+git tag -a v0.5.2-3 -m "v0.5.2-3"
+git push origin refs/tags/v0.5.2-3
 ```
 
 ## License
 
 BSD-2-Clause
-

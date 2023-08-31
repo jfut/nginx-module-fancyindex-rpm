@@ -25,16 +25,18 @@ Usage:
         -d Debug mode.
 
     Build for RHEL/AlmaLinux/Rocky Linux 9 + AppStream module:
-        ${PACKAGER} almalinux:9:appstream:1.20
+        ${PACKAGER} almalinux:9
+        ${PACKAGER} almalinux:9:appstream:1.22
 
     Build for RHEL/AlmaLinux/Rocky Linux 8 + AppStream module:
-        # ${PACKAGER} almalinux:8:appstream:1.14 (not supported)
+        # build almalinux:8 (version 1.14 is not supported)
         ${PACKAGER} almalinux:8:appstream:1.16
         ${PACKAGER} almalinux:8:appstream:1.18
         ${PACKAGER} almalinux:8:appstream:1.20
+        ${PACKAGER} almalinux:8:appstream:1.22
 
     Build for RHEL/AlmaLinux/Rocky Linux 8 + EPEL Stream module:
-        ${PACKAGER} almalinux:8:epel-modular:1.20
+        # EPEL 8 Modularity was going away on February 15, 2023
         ${PACKAGER} almalinux:8:epel-modular:mainline
 
     Build for RHEL/CentOS 7:
@@ -110,4 +112,3 @@ main() {
 }
 
 [[ ${#BASH_SOURCE[@]} = 1 ]] && main "${@}"
-

@@ -22,9 +22,10 @@ jobs:
           - almalinux_8_appstream_1.16
           - almalinux_8_appstream_1.18
           - almalinux_8_appstream_1.20
-          - almalinux_8_epel-modular_1.20
+          - almalinux_8_appstream_1.22
           - almalinux_8_epel-modular_mainline
-          - almalinux_9_appstream_1.20
+          - almalinux_9
+          - almalinux_9_appstream_1.22
 
     env:
       BUILD_IMAGE: ${{ matrix.image }}
@@ -32,7 +33,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 1
       - name: Build RPM
@@ -40,8 +41,7 @@ jobs:
         run: |
           ./build $(echo ${BUILD_IMAGE} | sed 's/_/:/g')
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.image }}
           path: rpmbuild/**/*.rpm
-
