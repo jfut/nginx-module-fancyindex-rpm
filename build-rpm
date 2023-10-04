@@ -124,6 +124,10 @@ if [[ ! -z "${REPOSITORY}" ]]; then
         RPM_DIST=$(echo "${RPM_DIST}" | sed -r "s/^\.(.*)/.module_\1.${MODULE_VERSION}/")
     fi
 fi
+echo rpmbuild \
+    --define \"%_topdir ${RPMBUILD_DIR}\" \
+    --define \"%dist ${RPM_DIST}\" \
+    -ba \"SPECS/${SPEC_FILE_NAME}\"
 rpmbuild \
     --define "%_topdir ${RPMBUILD_DIR}" \
     --define "%dist ${RPM_DIST}" \
