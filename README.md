@@ -2,6 +2,8 @@
 
 [![Build Status](https://github.com/jfut/nginx-module-fancyindex-rpm/workflows/test/badge.svg?branch=master)](https://github.com/jfut/nginx-module-fancyindex-rpm/actions?query=workflow%3Atest)
 
+test: `v0.5.2-9`
+
 [ngx-fancyindex](https://github.com/aperezdc/ngx-fancyindex) RPM Packaging for RHEL/AlmaLinux/Rocky Linux/others.
 
 ## Install an RPM package
@@ -103,14 +105,14 @@ BUILD_HOSTNAME=el8.example.org ./build -d almalinux:8:appstream:1.22
 /pkg/build-rpm /pkg/rpmbuild nginx-module-fancyindex.spec appstream 1.22
 ```
 
-## Release tag
+## Release
 
-e.g.:
-
-```bash
-git tag -a v0.5.2-4 -m "v0.5.2-4"
-git push origin refs/tags/v0.5.2-4
-```
+1. Edit the `Draft` on the release page.
+2. Update the new version `name` and `tag` on the edit page.
+3. Check `Set as a pre-release` and press the `Publish release` button.
+4. Wait for the build by GitHub Actions to finish.
+    - If the build fails due to errors such as download errors of source files, execute `Re-run failed jobs`.
+5. Once all release files are automatically uploaded, check `Set as the latest release` and press the `Publish release` button.
 
 ## License
 
