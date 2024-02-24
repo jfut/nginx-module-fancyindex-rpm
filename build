@@ -1,9 +1,13 @@
 #!/bin/bash
 #
-# Build RPM  with docker
+# Build RPM with docker
+#
+# Copyright (c) 2024 Jun Futagawa (jfut)
+#
+# This software is released under the 2-Clause BSD License.
+# https://opensource.org/license/bsd-2-clause
 
-set -e
-set -u
+set -euo pipefail
 
 DOCKER_RPMBUILD_DIR="/pkg/rpmbuild"
 SPEC_FILE_NAME="nginx-module-fancyindex.spec"
@@ -14,12 +18,13 @@ HOST_RPMBUILD_DIR="${SCRIPT_DIR}/rpmbuild"
 PACKAGER="$(basename "${0}")"
 
 DEBUG="no"
+PLATFORM=""
 
 # Usage
 usage() {
     cat << _EOF_
 Usage:
-    ${PACKAGER} [-d] [-h] BUILD_IMAGE_NAME:BUILD_IMAGE_TAG[:REPOSITORY][:MODULE_VERSION]
+    ${PACKAGER} [-d] [-h] [-p PLATFORM] BUILD_IMAGE_NAME:BUILD_IMAGE_TAG[:REPOSITORY][:MODULE_VERSION]
 
     Options:
         -d Debug mode.
@@ -41,6 +46,11 @@ Usage:
 
     Build for RHEL/CentOS 7:
         ${PACKAGER} centos:7
+
+    Build for RHEL/AlmaLinux/Rocky Linux 9 arm64v8(aarch64) + AppStream module:
+        ${PACKAGER} -p arm64v8 almalinux:9
+        ${PACKAGER} -p arm64v8 almalinux:9:appstream:1.22
+
 _EOF_
 }
 
@@ -68,14 +78,26 @@ build() {
 
     local DOCKER_OPTIONS=""
     local BUILD_CMD="$(dirname ${DOCKER_RPMBUILD_DIR})/build-rpm ${DOCKER_RPMBUILD_DIR} ${SPEC_FILE_NAME} ${REPOSITORY} ${MODULE_VERSION}"
-    if [[ "${DEBUG}" = "yes" ]]; then
-        echo "# Manual Build: ${BUILD_CMD}"
-        DOCKER_OPTIONS="-it"
-        BUILD_CMD="/bin/bash"
+
+    # Setup specificed platform
+    if [[ ! -z "${PLATFORM}" ]]; then
+        # Enable multiarch/qemu-user-static
+        docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+        BUILD_IMAGE="${PLATFORM}/${BUILD_IMAGE}"
     fi
 
     # Update build image
     docker pull "${BUILD_IMAGE}"
+
+    # Debug mode
+    if [[ "${DEBUG}" = "yes" ]]; then
+        echo
+        echo "# Manual Build"
+        echo "${BUILD_CMD}"
+        echo
+        DOCKER_OPTIONS="-it"
+        BUILD_CMD="/bin/bash"
+    fi
 
     # Build
     docker run \
@@ -86,13 +108,19 @@ build() {
         ${DOCKER_OPTIONS} \
         ${BUILD_IMAGE} \
         /bin/bash -c "${BUILD_CMD}"
+
+    # Cleanup specificed platform
+    if [[ ! -z "${PLATFORM}" ]]; then
+        # Disable multiarch/qemu-user-static
+        docker run --rm --privileged multiarch/qemu-user-static --reset -p no
+    fi
 }
 
 # Main
 main() {
     [[ $# -lt 1 ]] && usage && exit 1
 
-    while getopts dh OPT; do
+    while getopts dhp: OPT; do
         case "${OPT}" in
             "d" )
                 DEBUG="yes" ;;
@@ -100,6 +128,8 @@ main() {
                 usage
                 exit 0
                 ;;
+            "p" )
+                PLATFORM="${OPTARG}" ;;
             * )
                 usage
                 exit 1
@@ -111,4 +141,4 @@ main() {
     build "${@}"
 }
 
-[[ ${#BASH_SOURCE[@]} = 1 ]] && main "${@}"
+[[ ${#BASH_SOURCE[@]} = 1 ]] && main "${@:+$@}"

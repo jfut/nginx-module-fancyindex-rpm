@@ -8,7 +8,7 @@
 
 - [Download](https://github.com/jfut/nginx-module-fancyindex-rpm/releases)
 - Install:
-    - RHEL/AlmaLinux/Rocky Linux 9
+    - RHEL/AlmaLinux/Rocky Linux 9 x86_64
     ```bash
     # Non-modular package version 1.20
     dnf install nginx-module-fancyindex-0.5.2-4.el9.x86_64.rpm
@@ -16,7 +16,7 @@
     # AppStream module 1.22 stream
     dnf install nginx-module-fancyindex-0.5.2-4.module_el9.1.22.x86_64.rpm
     ```
-    - RHEL/AlmaLinux/Rocky Linux 8
+    - RHEL/AlmaLinux/Rocky Linux 8 x86_64
     ```bash
     # AppStream module 1.16 stream
     dnf install nginx-module-fancyindex-0.5.2-4.module_el8.1.16.x86_64.rpm
@@ -34,7 +34,7 @@
     # EPEL 8 Modularity was going away on February 15, 2023
     dnf install nginx-module-fancyindex-0.5.2-4.module_el8.epel.mainline.x86_64.rpm
     ```
-    - RHEL/CentOS 7
+    - RHEL/CentOS 7 x86_64
     ```bash
     yum install nginx-module-fancyindex-0.5.2-4.el7.x86_64.rpm
     ```
@@ -48,9 +48,9 @@ If `include /usr/share/nginx/modules/*.conf;` is enabled in `nginx.conf`, this m
 
 ## Usage
 
-```
+```bash
 Usage:
-    build [-d] [-h] BUILD_IMAGE_NAME:BUILD_IMAGE_TAG[:REPOSITORY][:MODULE_VERSION]
+    build [-d] [-h] [-p PLATFORM] BUILD_IMAGE_NAME:BUILD_IMAGE_TAG[:REPOSITORY][:MODULE_VERSION]
 
     Options:
         -d Debug mode.
@@ -72,22 +72,34 @@ Usage:
 
     Build for RHEL/CentOS 7:
         build centos:7
+
+    Build for RHEL/AlmaLinux/Rocky Linux 9 arm64v8(aarch64) + AppStream module:
+        build -p arm64v8 almalinux:9
+        build -p arm64v8 almalinux:9:appstream:1.22
 ```
 
 ## Build RPM Packages with Docker
 
 You can build RPM packages in Docker.
 
-```
+```bash
 # el9 + Non-modular package version
 ./build almalinux:9
 ```
 
 - Debug shell
 
-```
-# el8 + Modular package version + debug
-./build -d almalinux:8:appstream:1.22
+```bash
+# el9 + debug shell
+BUILD_HOSTNAME=el9.example.org ./build -d almalinux:9
+/pkg/build-rpm /pkg/rpmbuild nginx-module-fancyindex.spec
+
+# el9 + arm64v8 + debug shell
+BUILD_HOSTNAME=el9.example.org ./build -d -p arm64v8 almalinux:9
+/pkg/build-rpm /pkg/rpmbuild nginx-module-fancyindex.spec
+
+# el8 + Modular package version + debug shell
+BUILD_HOSTNAME=el8.example.org ./build -d almalinux:8:appstream:1.22
 /pkg/build-rpm /pkg/rpmbuild nginx-module-fancyindex.spec appstream 1.22
 ```
 
@@ -95,7 +107,7 @@ You can build RPM packages in Docker.
 
 e.g.:
 
-```
+```bash
 git tag -a v0.5.2-4 -m "v0.5.2-4"
 git push origin refs/tags/v0.5.2-4
 ```
