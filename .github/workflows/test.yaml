@@ -13,9 +13,10 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     strategy:
+      max-parallel: 5
       matrix:
         image:
           - centos_7
@@ -26,22 +27,29 @@ jobs:
           - almalinux_8_epel-modular_mainline
           - almalinux_9
           - almalinux_9_appstream_1.22
+        arch:
+          - amd64
+          - arm64v8
 
     env:
       BUILD_IMAGE: ${{ matrix.image }}
       BUILD_HOSTNAME: ${{ matrix.image }}.github.integ.jp
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 1
+      - uses: actions/checkout@v4
+
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Build RPM
-        id: build_rpm
         run: |
-          ./build $(echo ${BUILD_IMAGE} | sed 's/_/:/g')
+          ./build -p ${{ matrix.arch }} $(echo ${BUILD_IMAGE} | sed 's/_/:/g')
+
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.image }}
+          name: ${{ matrix.image }}-${{ matrix.arch }}
           path: rpmbuild/**/*.rpm
