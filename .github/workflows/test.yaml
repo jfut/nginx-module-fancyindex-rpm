@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     strategy:
+      max-parallel: 5
       matrix:
         image:
           - centos_7
@@ -44,7 +45,6 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build RPM
-        id: build_rpm
         run: |
           ./build -p ${{ matrix.arch }} $(echo ${BUILD_IMAGE} | sed 's/_/:/g')
 

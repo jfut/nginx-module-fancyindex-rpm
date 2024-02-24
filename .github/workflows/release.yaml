@@ -5,26 +5,17 @@ on:
     tags:
       - "v[0-9]+.[0-9]+.[0-9]+-*"
 
+permissions:
+  contents: read
+
 jobs:
-  create-release:
-    runs-on: ubuntu-22.04
-
-    steps:
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
-          draft: false
-          prerelease: false
-
   release:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: write
 
     strategy:
+      max-parallel: 5
       matrix:
         image:
           - centos_7
@@ -53,10 +44,8 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build RPM
-        id: build_rpm
         run: |
           ./build -p ${{ matrix.arch }} $(echo ${BUILD_IMAGE} | sed 's/_/:/g')
-          echo "##[set-output name=release-tag;]$(echo ${{ github.ref }} | sed -e 's|refs/tags/||g')"
 
       - name: Remove conflict files
         if: matrix.arch != 'amd64'
@@ -69,4 +58,4 @@ jobs:
         with:
           files: "rpmbuild/SRPMS/*.rpm;rpmbuild/RPMS/*/*.rpm"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          release-tag: ${{ steps.build_rpm.outputs.release-tag }}
+          release-tag: ${{ github.ref_name }}
