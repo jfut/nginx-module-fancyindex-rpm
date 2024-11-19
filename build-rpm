@@ -64,24 +64,21 @@ NGINX_VERSION=$(dnf list -q nginx | grep nginx. | awk '{ print $2 }' | grep -oP 
 sed -e "s/@NGINX_VERSION@/${NGINX_VERSION}/g" "SPECS/${SPEC_FILE_NAME}.in" > "SPECS/${SPEC_FILE_NAME}"
 
 # Install dependencies
-if [[ -f /usr/bin/dnf ]]; then
-    # el8 or later
+echo
+echo "Installing build tools and dependencies: ${BUILD_PACKAGES} dnf-plugins-core"
+RETRY=0
+until dnf -y install ${BUILD_PACKAGES} dnf-plugins-core || [[ "${RETRY}" -eq "${MAX_RETRY}" ]];
+do
     echo
-    echo "Installing build tools and dependencies: ${BUILD_PACKAGES} dnf-plugins-core"
-    RETRY=0
-    until dnf -y install ${BUILD_PACKAGES} dnf-plugins-core || [[ "${RETRY}" -eq "${MAX_RETRY}" ]];
-    do
-        echo
-        sleep $((RETRY++))
-        echo "Retry: dnf -y install ${BUILD_PACKAGES} (retry: ${RETRY})"
-    done
-    until dnf -y builddep "SPECS/${SPEC_FILE_NAME}" || [[ "${RETRY}" -eq "${MAX_RETRY}" ]];
-    do
-        sleep $((RETRY++))
-        echo
-        echo "Retry: dnf -y builddep \"SPECS/${SPEC_FILE_NAME}\" (retry: ${RETRY})"
-    done
-fi
+    sleep $((RETRY++))
+    echo "Retry: dnf -y install ${BUILD_PACKAGES} (retry: ${RETRY})"
+done
+until dnf -y builddep "SPECS/${SPEC_FILE_NAME}" || [[ "${RETRY}" -eq "${MAX_RETRY}" ]];
+do
+    sleep $((RETRY++))
+    echo
+    echo "Retry: dnf -y builddep \"SPECS/${SPEC_FILE_NAME}\" (retry: ${RETRY})"
+done
 
 # Build RPM files
 if [[ ! -d SOURCES ]]; then
