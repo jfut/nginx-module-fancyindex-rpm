@@ -54,6 +54,7 @@ Usage:
     Build for RHEL/AlmaLinux/Rocky Linux 9 + AppStream module:
         build almalinux:9
         build almalinux:9:appstream:1.22
+        build almalinux:9:appstream:1.24
 
     Build for RHEL/AlmaLinux/Rocky Linux 8 + AppStream module:
         # build almalinux:8 (version 1.14 is not supported)
@@ -61,6 +62,7 @@ Usage:
         build almalinux:8:appstream:1.18
         build almalinux:8:appstream:1.20
         build almalinux:8:appstream:1.22
+        build almalinux:8:appstream:1.24
 
     Build for RHEL/AlmaLinux/Rocky Linux 8 + EPEL Stream module:
         # EPEL 8 Modularity was going away on February 15, 2023
@@ -69,6 +71,7 @@ Usage:
     Build for RHEL/AlmaLinux/Rocky Linux 9 linux/arm64/v8(aarch64) + AppStream module:
         build -p linux/arm64/v8 almalinux:9
         build -p linux/arm64/v8 almalinux:9:appstream:1.22
+        build -p linux/arm64/v8 almalinux:9:appstream:1.24
 ```
 
 ## Build RPM Packages with Docker
@@ -92,8 +95,8 @@ BUILD_HOSTNAME=el9.example.org ./build -d -p linux/arm64/v8 almalinux:9
 /pkg/build-rpm /pkg/rpmbuild nginx-module-fancyindex.spec
 
 # el8 + Modular package version + debug shell
-BUILD_HOSTNAME=el8.example.org ./build -d almalinux:8:appstream:1.22
-/pkg/build-rpm /pkg/rpmbuild nginx-module-fancyindex.spec appstream 1.22
+BUILD_HOSTNAME=el8.example.org ./build -d almalinux:8:appstream:1.24
+/pkg/build-rpm /pkg/rpmbuild nginx-module-fancyindex.spec appstream 1.24
 ```
 
 ## Release
