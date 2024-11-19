@@ -47,7 +47,7 @@ jobs:
           ./build -p ${{ matrix.arch }} $(echo ${BUILD_IMAGE} | sed 's/_/:/g')
 
       - name: Remove conflict files
-        if: matrix.arch != 'amd64'
+        if: matrix.arch != 'linux/amd64'
         run: |
           rm -f rpmbuild/SRPMS/*.rpm
           ls -al rpmbuild/SRPMS/
