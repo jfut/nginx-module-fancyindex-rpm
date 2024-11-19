@@ -13,10 +13,10 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     strategy:
-      max-parallel: 5
+      max-parallel: 20
       matrix:
         image:
           - almalinux_8_appstream_1.16
@@ -35,13 +35,13 @@ jobs:
       BUILD_HOSTNAME: ${{ matrix.image }}.github.integ.jp
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup QEMU
-        uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3.0.0
+        uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf # v3.2.0
 
       - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
+        uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3.7.1
 
       - name: Build RPM
         run: |
@@ -51,7 +51,7 @@ jobs:
         run: echo "ARTIFACT_NAME=$(echo ${{ matrix.image }}-${{ matrix.arch }} | sed 's/\//-/g')" >> $GITHUB_ENV
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: rpmbuild/**/*.rpm
