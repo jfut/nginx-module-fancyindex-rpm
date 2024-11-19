@@ -1,7 +1,8 @@
-%define nginx_version   @NGINX_VERSION@
-%define nginx_build_dir %{_builddir}/nginx-%{nginx_version}
-%define mod_name        fancyindex
-%define mod_base_dir    ngx-%{mod_name}
+%define nginx_epoch_version @NGINX_EPOCH_VERSION@
+%define nginx_version       @NGINX_VERSION@
+%define nginx_build_dir     %{_builddir}/nginx-%{nginx_version}
+%define mod_name            fancyindex
+%define mod_base_dir        ngx-%{mod_name}
 
 %global nginx_moduledir %{_libdir}/nginx/modules
 %global nginx_moduleconfdir %{_datadir}/nginx/modules
@@ -9,14 +10,14 @@
 Summary: Nginx module to use PAM for simple http authentication
 Name: nginx-module-fancyindex
 Version: 0.5.2
-Release: 5%{?dist}
+Release: 6%{?dist}
 License: BSD-2-Clause
 URL: https://github.com/sto/ngx_http_fancyindex_module
 
 Source0: https://nginx.org/download/nginx-%{nginx_version}.tar.gz
 Source1: https://github.com/aperezdc/ngx-fancyindex/releases/download/v%{version}/ngx-fancyindex-%{version}.tar.xz
 
-Requires: nginx = 1:%{nginx_version}
+Requires: nginx = %{nginx_epoch_version}:%{nginx_version}
 BuildRequires: autoconf
 BuildRequires: automake
 BuildRequires: gd-devel
@@ -70,6 +71,9 @@ echo 'load_module "%{nginx_moduledir}/ngx_http_fancyindex_module.so";' \
 %config(noreplace) %{nginx_moduleconfdir}/mod-*.conf
 
 %changelog
+* Tue Nov 19 2024 Jun Futagawa <jfut@integ.jp> 0.5.2-6
+- feat: add support for RHEL/AlmaLinux/Rocky Linux 9.5 (#13) @jfut
+
 * Sat Feb 24 2024 Jun Futagawa <jfut@integ.jp> 0.5.2-5
 - feat: add support for arm64v8(aarch64) (#7) @jfut (#9)
 - ci: transition to a release flow using release-drafter @jfut (#10)
