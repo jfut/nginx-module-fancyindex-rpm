@@ -27,8 +27,8 @@ jobs:
           - almalinux_9
           - almalinux_9_appstream_1.22
         arch:
-          - amd64
-          - arm64v8
+          - linux/amd64
+          - linux/arm64/v8
 
     env:
       BUILD_IMAGE: ${{ matrix.image }}
