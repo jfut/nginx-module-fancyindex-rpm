@@ -44,9 +44,9 @@ Usage:
         # EPEL 8 Modularity was going away on February 15, 2023
         ${PACKAGER} almalinux:8:epel-modular:mainline
 
-    Build for RHEL/AlmaLinux/Rocky Linux 9 arm64v8(aarch64) + AppStream module:
-        ${PACKAGER} -p arm64v8 almalinux:9
-        ${PACKAGER} -p arm64v8 almalinux:9:appstream:1.22
+    Build for RHEL/AlmaLinux/Rocky Linux 9 linux/arm64/v8(aarch64) + AppStream module:
+        ${PACKAGER} -p linux/arm64/v8 almalinux:9
+        ${PACKAGER} -p linux/arm64/v8 almalinux:9:appstream:1.22
 
 _EOF_
 }
@@ -80,11 +80,11 @@ build() {
     if [[ ! -z "${PLATFORM}" ]]; then
         # Enable multiarch/qemu-user-static
         docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-        BUILD_IMAGE="${PLATFORM}/${BUILD_IMAGE}"
+        DOCKER_OPTIONS="--platform ${PLATFORM}"
     fi
 
     # Update build image
-    docker pull "${BUILD_IMAGE}"
+    docker pull ${DOCKER_OPTIONS} "${BUILD_IMAGE}"
 
     # Debug mode
     if [[ "${DEBUG}" = "yes" ]]; then
@@ -92,7 +92,7 @@ build() {
         echo "# Manual Build"
         echo "${BUILD_CMD}"
         echo
-        DOCKER_OPTIONS="-it"
+        DOCKER_OPTIONS="${DOCKER_OPTIONS} -it"
         BUILD_CMD="/bin/bash"
     fi
 

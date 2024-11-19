@@ -66,9 +66,9 @@ Usage:
         # EPEL 8 Modularity was going away on February 15, 2023
         build almalinux:8:epel-modular:mainline
 
-    Build for RHEL/AlmaLinux/Rocky Linux 9 arm64v8(aarch64) + AppStream module:
-        build -p arm64v8 almalinux:9
-        build -p arm64v8 almalinux:9:appstream:1.22
+    Build for RHEL/AlmaLinux/Rocky Linux 9 linux/arm64/v8(aarch64) + AppStream module:
+        build -p linux/arm64/v8 almalinux:9
+        build -p linux/arm64/v8 almalinux:9:appstream:1.22
 ```
 
 ## Build RPM Packages with Docker
@@ -87,8 +87,8 @@ You can build RPM packages in Docker.
 BUILD_HOSTNAME=el9.example.org ./build -d almalinux:9
 /pkg/build-rpm /pkg/rpmbuild nginx-module-fancyindex.spec
 
-# el9 + arm64v8 + debug shell
-BUILD_HOSTNAME=el9.example.org ./build -d -p arm64v8 almalinux:9
+# el9 + linux/arm64/v8 + debug shell
+BUILD_HOSTNAME=el9.example.org ./build -d -p linux/arm64/v8 almalinux:9
 /pkg/build-rpm /pkg/rpmbuild nginx-module-fancyindex.spec
 
 # el8 + Modular package version + debug shell
