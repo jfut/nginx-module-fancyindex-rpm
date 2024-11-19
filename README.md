@@ -34,10 +34,6 @@
     # EPEL 8 Modularity was going away on February 15, 2023
     dnf install nginx-module-fancyindex-0.5.2-5.module_el8.epel.mainline.x86_64.rpm
     ```
-    - RHEL/CentOS 7 x86_64
-    ```bash
-    yum install nginx-module-fancyindex-0.5.2-5.el7.x86_64.rpm
-    ```
 - Add your configuration for this module (See [the official documentation](https://github.com/aperezdc/ngx-fancyindex)).
 - Restart nginx:
     ```bash
@@ -69,9 +65,6 @@ Usage:
     Build for RHEL/AlmaLinux/Rocky Linux 8 + EPEL Stream module:
         # EPEL 8 Modularity was going away on February 15, 2023
         build almalinux:8:epel-modular:mainline
-
-    Build for RHEL/CentOS 7:
-        build centos:7
 
     Build for RHEL/AlmaLinux/Rocky Linux 9 arm64v8(aarch64) + AppStream module:
         build -p arm64v8 almalinux:9

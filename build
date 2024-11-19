@@ -44,9 +44,6 @@ Usage:
         # EPEL 8 Modularity was going away on February 15, 2023
         ${PACKAGER} almalinux:8:epel-modular:mainline
 
-    Build for RHEL/CentOS 7:
-        ${PACKAGER} centos:7
-
     Build for RHEL/AlmaLinux/Rocky Linux 9 arm64v8(aarch64) + AppStream module:
         ${PACKAGER} -p arm64v8 almalinux:9
         ${PACKAGER} -p arm64v8 almalinux:9:appstream:1.22

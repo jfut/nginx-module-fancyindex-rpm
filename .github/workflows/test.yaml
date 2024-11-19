@@ -19,7 +19,6 @@ jobs:
       max-parallel: 5
       matrix:
         image:
-          - centos_7
           - almalinux_8_appstream_1.16
           - almalinux_8_appstream_1.18
           - almalinux_8_appstream_1.20
