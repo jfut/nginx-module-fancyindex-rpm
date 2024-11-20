@@ -71,9 +71,10 @@ echo 'load_module "%{nginx_moduledir}/ngx_http_fancyindex_module.so";' \
 %config(noreplace) %{nginx_moduleconfdir}/mod-*.conf
 
 %changelog
-* Tue Nov 19 2024 Jun Futagawa <jfut@integ.jp> 0.5.2-6
-- feat: add support for RHEL/AlmaLinux/Rocky Linux 9.5 (#13) @jfut
-- Add support for nginx 1.24 (#14)
+* Wed Nov 20 2024 Jun Futagawa <jfut@integ.jp> 0.5.2-6
+- feat: add support for nginx 1.24 @jfut (#22)
+- feat: add support for RHEL/AlmaLinux/Rocky Linux 9.5 @jfut (#15)
+- fix: drop CentOS 7 support @jfut (#18)
 
 * Sat Feb 24 2024 Jun Futagawa <jfut@integ.jp> 0.5.2-5
 - feat: add support for arm64v8(aarch64) (#7) @jfut (#9)
