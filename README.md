@@ -11,28 +11,34 @@
     - RHEL/AlmaLinux/Rocky Linux 9 x86_64
     ```bash
     # Non-modular package version 1.20
-    dnf install nginx-module-fancyindex-0.5.2-5.el9.x86_64.rpm
+    dnf install nginx-module-fancyindex-0.5.2-6.el9.x86_64.rpm
     
     # AppStream module 1.22 stream
-    dnf install nginx-module-fancyindex-0.5.2-5.module_el9.1.22.x86_64.rpm
+    dnf install nginx-module-fancyindex-0.5.2-6.module_el9.1.22.x86_64.rpm
+    
+    # AppStream module 1.24 stream
+    dnf install nginx-module-fancyindex-0.5.2-6.module_el9.1.24.x86_64.rpm
     ```
     - RHEL/AlmaLinux/Rocky Linux 8 x86_64
     ```bash
     # AppStream module 1.16 stream
-    dnf install nginx-module-fancyindex-0.5.2-5.module_el8.1.16.x86_64.rpm
+    dnf install nginx-module-fancyindex-0.5.2-6.module_el8.1.16.x86_64.rpm
     
     # AppStream module 1.18 stream
-    dnf install nginx-module-fancyindex-0.5.2-5.module_el8.1.18.x86_64.rpm
+    dnf install nginx-module-fancyindex-0.5.2-6.module_el8.1.18.x86_64.rpm
     
     # AppStream module 1.20 stream
-    dnf install nginx-module-fancyindex-0.5.2-5.module_el8.1.20.x86_64.rpm
+    dnf install nginx-module-fancyindex-0.5.2-6.module_el8.1.20.x86_64.rpm
     
     # AppStream module 1.22 stream
-    dnf install nginx-module-fancyindex-0.5.2-5.module_el8.1.22.x86_64.rpm
+    dnf install nginx-module-fancyindex-0.5.2-6.module_el8.1.22.x86_64.rpm
+    
+    # AppStream module 1.24 stream
+    dnf install nginx-module-fancyindex-0.5.2-6.module_el8.1.24.x86_64.rpm
     
     # EPEL module mainline stream (version: 1.23)
     # EPEL 8 Modularity was going away on February 15, 2023
-    dnf install nginx-module-fancyindex-0.5.2-5.module_el8.epel.mainline.x86_64.rpm
+    dnf install nginx-module-fancyindex-0.5.2-6.module_el8.epel.mainline.x86_64.rpm
     ```
 - Add your configuration for this module (See [the official documentation](https://github.com/aperezdc/ngx-fancyindex)).
 - Restart nginx:
