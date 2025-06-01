@@ -10,7 +10,7 @@
 Summary: Nginx module to use PAM for simple http authentication
 Name: nginx-module-fancyindex
 Version: 0.5.2
-Release: 6%{?dist}
+Release: 7%{?dist}
 License: BSD-2-Clause
 URL: https://github.com/sto/ngx_http_fancyindex_module
 
@@ -71,6 +71,8 @@ echo 'load_module "%{nginx_moduledir}/ngx_http_fancyindex_module.so";' \
 %config(noreplace) %{nginx_moduleconfdir}/mod-*.conf
 
 %changelog
+* Sun Jun  1 2025 Jun Futagawa <jfut@integ.jp> 0.5.2-7
+
 * Wed Nov 20 2024 Jun Futagawa <jfut@integ.jp> 0.5.2-6
 - feat: add support for nginx 1.24 @jfut (#22)
 - feat: add support for RHEL/AlmaLinux/Rocky Linux 9.5 @jfut (#15)

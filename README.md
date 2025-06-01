@@ -61,6 +61,7 @@ Usage:
         build almalinux:9
         build almalinux:9:appstream:1.22
         build almalinux:9:appstream:1.24
+        build almalinux:9:appstream:1.26
 
     Build for RHEL/AlmaLinux/Rocky Linux 8 + AppStream module:
         # build almalinux:8 (version 1.14 is not supported)
