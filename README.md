@@ -57,6 +57,9 @@ Usage:
     Options:
         -d Debug mode.
 
+    Build for RHEL/AlmaLinux/Rocky Linux 10 + AppStream module:
+        build almalinux:10
+
     Build for RHEL/AlmaLinux/Rocky Linux 9 + AppStream module:
         build almalinux:9
         build almalinux:9:appstream:1.22
@@ -75,6 +78,9 @@ Usage:
         # EPEL 8 Modularity was going away on February 15, 2023
         build almalinux:8:epel-modular:mainline
 
+    Build for RHEL/AlmaLinux/Rocky Linux 10 linux/arm64/v8(aarch64) + AppStream module:
+        build -p linux/arm64/v8 almalinux:10
+
     Build for RHEL/AlmaLinux/Rocky Linux 9 linux/arm64/v8(aarch64) + AppStream module:
         build -p linux/arm64/v8 almalinux:9
         build -p linux/arm64/v8 almalinux:9:appstream:1.22
@@ -86,15 +92,15 @@ Usage:
 You can build RPM packages in Docker.
 
 ```bash
-# el9 + Non-modular package version
-./build almalinux:9
+# el10 + Non-modular package version
+./build almalinux:10
 ```
 
 - Debug shell
 
 ```bash
-# el9 + debug shell
-BUILD_HOSTNAME=el9.example.org ./build -d almalinux:9
+# el10 + debug shell
+BUILD_HOSTNAME=el10.example.org ./build -d almalinux:10
 /pkg/build-rpm /pkg/rpmbuild nginx-module-fancyindex.spec
 
 # el9 + linux/arm64/v8 + debug shell

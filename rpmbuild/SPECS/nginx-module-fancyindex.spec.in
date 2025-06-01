@@ -21,14 +21,16 @@ Requires: nginx = %{nginx_epoch_version}:%{nginx_version}
 BuildRequires: autoconf
 BuildRequires: automake
 BuildRequires: gd-devel
-%if 0%{?rhel} == 7
-BuildRequires: gperftools-devel
-%endif
 BuildRequires: libtool
 BuildRequires: libxslt-devel
 BuildRequires: nginx
 BuildRequires: openssl-devel
+%if 0%{?rhel} == 10
+BuildRequires: pcre2-devel
+%else
+# el8 and el9
 BuildRequires: pcre-devel
+%endif
 BuildRequires: perl-devel
 BuildRequires: perl(ExtUtils::Embed)
 BuildRequires: zlib-devel
@@ -46,7 +48,13 @@ Nginx module to use PAM for simple http authentication.
 
 %build
 cd %{_builddir}/nginx-%{nginx_version}
+%if 0%{?rhel} == 10
+# Fix ./configure: error: invalid option "--without-engine
+./configure %(nginx -V 2>&1 | grep 'configure arguments' | sed -r 's@^[^:]+: @@' | sed 's/--without-engine //') --add-dynamic-module=../%{mod_base_dir}-%{version}
+%else
+# el8 and el9
 ./configure %(nginx -V 2>&1 | grep 'configure arguments' | sed -r 's@^[^:]+: @@') --add-dynamic-module=../%{mod_base_dir}-%{version}
+%endif
 make modules
 
 %install
