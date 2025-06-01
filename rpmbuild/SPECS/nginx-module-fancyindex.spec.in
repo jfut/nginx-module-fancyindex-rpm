@@ -80,6 +80,8 @@ echo 'load_module "%{nginx_moduledir}/ngx_http_fancyindex_module.so";' \
 
 %changelog
 * Sun Jun  1 2025 Jun Futagawa <jfut@integ.jp> 0.5.2-7
+- feat: add support for RHEL/AlmaLinux/Rocky Linux 10 @jfut (#27)
+- feat: add support almalinux 9 appstream 1.26 with nginx 1.26 @jfut (#26)
 
 * Wed Nov 20 2024 Jun Futagawa <jfut@integ.jp> 0.5.2-6
 - feat: add support for nginx 1.24 @jfut (#22)
