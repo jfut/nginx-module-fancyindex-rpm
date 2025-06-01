@@ -28,6 +28,7 @@ jobs:
           - almalinux_9_appstream_1.22
           - almalinux_9_appstream_1.24
           - almalinux_9_appstream_1.26
+          - almalinux_10
         arch:
           - linux/amd64
           - linux/arm64/v8

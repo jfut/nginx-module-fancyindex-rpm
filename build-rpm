@@ -89,12 +89,12 @@ if [[ ! -d SOURCES ]]; then
     mkdir SOURCES
 fi
 
-if [[ "${RPM_DIST}" = ".el9" ]]; then
-    # el9 or later
-    spectool -g -a "SPECS/${SPEC_FILE_NAME}" -C SOURCES/
-else
+if [[ "${RPM_DIST}" = ".el8" ]]; then
     # el8
     spectool -g -A "SPECS/${SPEC_FILE_NAME}" -C SOURCES/
+else
+    # el9 or later
+    spectool -g -a "SPECS/${SPEC_FILE_NAME}" -C SOURCES/
 fi
 
 echo "Building RPM files:"

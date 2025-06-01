@@ -29,6 +29,9 @@ Usage:
     Options:
         -d Debug mode.
 
+    Build for RHEL/AlmaLinux/Rocky Linux 10 + AppStream module:
+        ${PACKAGER} almalinux:10
+
     Build for RHEL/AlmaLinux/Rocky Linux 9 + AppStream module:
         ${PACKAGER} almalinux:9
         ${PACKAGER} almalinux:9:appstream:1.22
@@ -45,6 +48,9 @@ Usage:
     Build for RHEL/AlmaLinux/Rocky Linux 8 + EPEL Stream module:
         # EPEL 8 Modularity was going away on February 15, 2023
         ${PACKAGER} almalinux:8:epel-modular:mainline
+
+    Build for RHEL/AlmaLinux/Rocky Linux 10 linux/arm64/v8(aarch64) + AppStream module:
+        ${PACKAGER} -p linux/arm64/v8 almalinux:10
 
     Build for RHEL/AlmaLinux/Rocky Linux 9 linux/arm64/v8(aarch64) + AppStream module:
         ${PACKAGER} -p linux/arm64/v8 almalinux:9
