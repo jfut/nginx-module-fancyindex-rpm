@@ -32,7 +32,7 @@ if [[ -f /etc/rpm/macros.dist ]]; then
     # el8
     RPM_MACROS=/etc/rpm/macros.dist
 fi
-RPM_DIST=.$(egrep -o "^%el[0-9]*" "${RPM_MACROS}" | tr -d '%')
+RPM_DIST=.$(grep -o -E "^%el[0-9]*" "${RPM_MACROS}" | tr -d '%')
 echo "RPM_DIST: ${RPM_DIST} (${RPM_MACROS})"
 
 # Install nginx and setup spec file
