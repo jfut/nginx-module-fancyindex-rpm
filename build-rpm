@@ -114,6 +114,20 @@ rpmbuild \
     --define "%dist ${RPM_DIST}" \
     -ba "SPECS/${SPEC_FILE_NAME}"
 
+if [[ "${RPM_DIST}" = ".el10" ]]; then
+    # Build binary package only for x86_64_v2
+    echo rpmbuild \
+        --define \"%_topdir ${RPMBUILD_DIR}\" \
+        --define \"%dist ${RPM_DIST}\" \
+        -bb \"SPECS/${SPEC_FILE_NAME}\" \
+        --target x86_64_v2
+    rpmbuild \
+        --define "%_topdir ${RPMBUILD_DIR}" \
+        --define "%dist ${RPM_DIST}" \
+        -bb "SPECS/${SPEC_FILE_NAME}" \
+        --target x86_64_v2
+fi
+
 echo "Change permissions to delete conflicting files when releasing via GitHub Actions:"
 chmod 777 "${RPMBUILD_DIR}/SRPMS"
 find "${RPMBUILD_DIR}/SRPMS" -name "*.rpm" -print0 | xargs -r -0 chmod 666
