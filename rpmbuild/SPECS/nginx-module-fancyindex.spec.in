@@ -50,10 +50,10 @@ Nginx module to use PAM for simple http authentication.
 cd %{_builddir}/nginx-%{nginx_version}
 %if 0%{?rhel} == 10
 # Fix ./configure: error: invalid option "--without-engine
-./configure %(nginx -V 2>&1 | grep 'configure arguments' | sed -r 's@^[^:]+: @@' | sed 's/--without-engine //') --add-dynamic-module=../%{mod_base_dir}-%{version}
+./configure %(nginx -V 2>&1 | grep 'configure arguments' | sed -r 's@^[^:]+: @@' | sed -r 's/ ?-march=[^ ]+//g' | sed 's/--without-engine //') --add-dynamic-module=../%{mod_base_dir}-%{version}
 %else
 # el8 and el9
-./configure %(nginx -V 2>&1 | grep 'configure arguments' | sed -r 's@^[^:]+: @@') --add-dynamic-module=../%{mod_base_dir}-%{version}
+./configure %(nginx -V 2>&1 | grep 'configure arguments' | sed -r 's@^[^:]+: @@' | sed -r 's/ ?-march=[^ ]+//g') --add-dynamic-module=../%{mod_base_dir}-%{version}
 %endif
 make modules
 
