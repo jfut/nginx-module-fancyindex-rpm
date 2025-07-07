@@ -11,6 +11,7 @@ set -euo pipefail
 
 export LC_ALL=C
 
+ARCH=$(arch)
 BUILD_PACKAGES="autoconf automake libtool gcc make procps-ng rpm-build rpmdevtools"
 MAX_RETRY="10"
 
@@ -32,7 +33,7 @@ if [[ -f /etc/rpm/macros.dist ]]; then
     # el8
     RPM_MACROS=/etc/rpm/macros.dist
 fi
-RPM_DIST=.$(egrep -o "^%el[0-9]*" "${RPM_MACROS}" | tr -d '%')
+RPM_DIST=.$(grep -o -E "^%el[0-9]*" "${RPM_MACROS}" | tr -d '%')
 echo "RPM_DIST: ${RPM_DIST} (${RPM_MACROS})"
 
 # Install nginx and setup spec file
@@ -113,6 +114,20 @@ rpmbuild \
     --define "%_topdir ${RPMBUILD_DIR}" \
     --define "%dist ${RPM_DIST}" \
     -ba "SPECS/${SPEC_FILE_NAME}"
+
+# Build binary package for x86_64_v2 on x86_64 from el10 or later
+if [[ "${ARCH}" = "x86_64" ]] && [[ "${RPM_DIST}" = ".el10" ]]; then
+    echo rpmbuild \
+        --define \"%_topdir ${RPMBUILD_DIR}\" \
+        --define \"%dist ${RPM_DIST}\" \
+        -bb \"SPECS/${SPEC_FILE_NAME}\" \
+        --target x86_64_v2
+    rpmbuild \
+        --define "%_topdir ${RPMBUILD_DIR}" \
+        --define "%dist ${RPM_DIST}" \
+        -bb "SPECS/${SPEC_FILE_NAME}" \
+        --target x86_64_v2
+fi
 
 echo "Change permissions to delete conflicting files when releasing via GitHub Actions:"
 chmod 777 "${RPMBUILD_DIR}/SRPMS"
