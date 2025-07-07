@@ -13,11 +13,14 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.os }}
 
     strategy:
       max-parallel: 20
       matrix:
+        os:
+          - ubuntu-24.04
+          - ubuntu-24.04-arm
         image:
           - almalinux_8_appstream_1.16
           - almalinux_8_appstream_1.18
@@ -30,9 +33,6 @@ jobs:
           - almalinux_9_appstream_1.24
           - almalinux_9_appstream_1.26
           - almalinux_10
-        arch:
-          - linux/amd64
-          - linux/arm64/v8
 
     env:
       BUILD_IMAGE: ${{ matrix.image }}
@@ -41,21 +41,15 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Setup QEMU
-        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3.6.0
-
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3.10.0
-
       - name: Build RPM
         run: |
-          ./build -p ${{ matrix.arch }} $(echo ${BUILD_IMAGE} | sed 's/_/:/g')
+          ./build $(echo ${BUILD_IMAGE} | sed 's/_/:/g')
 
       - name: Normalize artifact name
-        run: echo "ARTIFACT_NAME=$(echo ${{ matrix.image }}-${{ matrix.arch }} | sed 's/\//-/g')" >> $GITHUB_ENV
+        run: echo "ARTIFACT_NAME=$(echo ${{ matrix.image }}-$(arch))" >> $GITHUB_ENV
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: rpmbuild/**/*.rpm
