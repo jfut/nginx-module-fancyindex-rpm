@@ -1,9 +1,9 @@
 # nginx-module-fancyindex RPM Packaging
 
-![Tag](https://img.shields.io/github/tag/jfut/nginx-module-fancyindex-rpm.svg)
+[![Tag](https://img.shields.io/github/tag/jfut/nginx-module-fancyindex-rpm.svg)](https://github.com/jfut/nginx-module-fancyindex-rpm/releases)
 [![License](https://img.shields.io/badge/License-BSD--2--Clause-blue)](https://github.com/jfut/nginx-module-fancyindex-rpm/blob/main/LICENSE)
 
-[ngx-fancyindex](https://github.com/aperezdc/ngx-fancyindex) RPM Packaging for RHEL/AlmaLinux/Rocky Linux/others.
+[ngx-fancyindex](https://github.com/aperezdc/ngx-fancyindex) RPM Packaging for RHEL, AlmaLinux, Rocky Linux, and other compatible distributions.
 
 ## Install an RPM package
 
@@ -67,10 +67,16 @@ If `include /usr/share/nginx/modules/*.conf;` is enabled in `nginx.conf`, this m
 
 ```bash
 Usage:
-    build [-d] [-h] [-p PLATFORM] BUILD_IMAGE_NAME:BUILD_IMAGE_TAG[:REPOSITORY][:MODULE_VERSION]
+    build [-d] [-s] [-h] [-p PLATFORM] BUILD_IMAGE_NAME:BUILD_IMAGE_TAG[:REPOSITORY][:MODULE_VERSION]
 
     Options:
         -d Debug mode.
+        -s Sign RPMs after building.
+
+    Signing environment variables:
+        GPG_KEY_PATH Path to an ASCII-armored private key file.
+        GPG_FINGERPRINT Optional GPG fingerprint or key ID used for rpmsign.
+        GPG_PASSPHRASE Passphrase for the private key.
 
     Build for RHEL/AlmaLinux/Rocky Linux 10 + AppStream module:
         build almalinux:10
@@ -107,9 +113,18 @@ Usage:
 You can build RPM packages in Docker.
 
 ```bash
-# el10 + Non-modular package version
-./build almalinux:10
+BUILD_HOSTNAME=el10.example.org ./build almalinux:10
 ```
+
+- Build and sign RPMs
+
+```bash
+export GPG_KEY_PATH=/path/to/rpm-signing-key.asc
+read -r -s -p "GPG_PASSPHRASE: " GPG_PASSPHRASE; printf '\n'; export GPG_PASSPHRASE
+BUILD_HOSTNAME=el10.example.org ./build -s almalinux:10
+```
+
+If the key file contains multiple secret keys, set `GPG_FINGERPRINT` explicitly.
 
 - Debug shell
 
@@ -129,12 +144,11 @@ BUILD_HOSTNAME=el8.example.org ./build -d almalinux:8:appstream:1.24
 
 ## Release
 
-1. Edit the `Draft` on the release page.
-2. Update the new version `name` and `tag` on the edit page.
-3. Check `Set as a pre-release` and press the `Publish release` button.
-4. Wait for the build by GitHub Actions to finish.
-    - If the build fails due to errors such as download errors of source files, execute `Re-run failed jobs`.
-5. Once all release files are automatically uploaded, check `Set as the latest release` and press the `Publish release` button.
+1. Run `git tag -s vX.Y.Z -m vX.Y.Z`.
+2. Run `git push origin vX.Y.Z` and wait for the Release to be created.
+3. Edit the created Release.
+4. Press the `Generate release notes` button and edit the release notes.
+5. Press the `Update release` button.
 
 ## License
 

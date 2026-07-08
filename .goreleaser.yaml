@@ -1,0 +1,31 @@
+version: 2
+
+project_name: nginx-module-fancyindex-rpm
+
+metadata:
+  mod_timestamp: "{{ .CommitTimestamp }}"
+
+report_sizes: true
+
+gomod:
+  gobinary: /bin/true
+
+builds:
+  - id: nginx-module-fancyindex-rpm
+    skip: true
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+
+release:
+  extra_files:
+    - glob: release-artifacts/**/*.rpm
+
+checksum:
+  name_template: "checksums.txt"
+  extra_files:
+    - glob: release-artifacts/**/*.rpm

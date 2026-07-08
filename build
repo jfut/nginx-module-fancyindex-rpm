@@ -12,22 +12,30 @@ set -euo pipefail
 DOCKER_RPMBUILD_DIR="/pkg/rpmbuild"
 SPEC_FILE_NAME="nginx-module-fancyindex.spec"
 
-SCRIPT_DIR=$(dirname $(readlink -f $0))
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 HOST_RPMBUILD_DIR="${SCRIPT_DIR}/rpmbuild"
 
 PACKAGER="$(basename "${0}")"
 
 DEBUG="no"
 PLATFORM=""
+SIGN_RPMS="no"
+CONTAINER_GPG_KEY_PATH="/tmp/rpm-signing-key.asc"
 
 # Usage
 usage() {
     cat << _EOF_
 Usage:
-    ${PACKAGER} [-d] [-h] [-p PLATFORM] BUILD_IMAGE_NAME:BUILD_IMAGE_TAG[:REPOSITORY][:MODULE_VERSION]
+    ${PACKAGER} [-d] [-s] [-h] [-p PLATFORM] BUILD_IMAGE_NAME:BUILD_IMAGE_TAG[:REPOSITORY][:MODULE_VERSION]
 
     Options:
         -d Debug mode.
+        -s Sign RPMs after building.
+
+    Signing environment variables:
+        GPG_KEY_PATH Path to an ASCII-armored private key file.
+        GPG_FINGERPRINT Optional GPG fingerprint or key ID used for rpmsign.
+        GPG_PASSPHRASE Passphrase for the private key.
 
     Build for RHEL/AlmaLinux/Rocky Linux 10 + AppStream module:
         ${PACKAGER} almalinux:10
@@ -60,6 +68,21 @@ Usage:
 _EOF_
 }
 
+validate_signing_env() {
+    if [[ "${SIGN_RPMS}" != "yes" ]]; then
+        return
+    fi
+
+    # Require the signing inputs only when signing is enabled.
+    : "${GPG_KEY_PATH:?GPG_KEY_PATH is required when using -s}"
+    : "${GPG_PASSPHRASE:?GPG_PASSPHRASE is required when using -s}"
+
+    if [[ ! -f "${GPG_KEY_PATH}" ]]; then
+        echo "GPG_KEY_PATH does not exist: ${GPG_KEY_PATH}" >&2
+        exit 1
+    fi
+}
+
 setup_dir() {
     # Build directories
     for i in BUILD BUILDROOT RPMS SOURCES SPECS SRPMS tmp
@@ -73,27 +96,34 @@ setup_dir() {
 
 build() {
     local BUILD_ARGS="$1"
-
-    local BUILD_IMAGE_NAME=$(echo ${BUILD_ARGS} | cut -d':' -f 1)
-    local BUILD_IMAGE_TAG=$(echo ${BUILD_ARGS} | cut -d':' -f 2)
-    local REPOSITORY=$(echo ${BUILD_ARGS} | cut -d':' -f 3)
-    local MODULE_VERSION=$(echo ${BUILD_ARGS} | cut -d':' -f 4)
-
-    local BUILD_IMAGE="${BUILD_IMAGE_NAME}:${BUILD_IMAGE_TAG}" 
+    local BUILD_IMAGE_NAME
+    local BUILD_IMAGE_TAG
+    local REPOSITORY
+    local MODULE_VERSION
+    local BUILD_IMAGE
     local BUILD_HOSTNAME="${BUILD_HOSTNAME:-${HOSTNAME}}"
+    local DOCKER_OPTIONS=()
+    local DOCKER_SIGN_OPTIONS=()
+    local docker_pkg_dir
+    local BUILD_CMD
 
-    local DOCKER_OPTIONS=""
-    local BUILD_CMD="$(dirname ${DOCKER_RPMBUILD_DIR})/build-rpm ${DOCKER_RPMBUILD_DIR} ${SPEC_FILE_NAME} ${REPOSITORY} ${MODULE_VERSION}"
+    BUILD_IMAGE_NAME="$(echo "${BUILD_ARGS}" | cut -d':' -f 1)"
+    BUILD_IMAGE_TAG="$(echo "${BUILD_ARGS}" | cut -d':' -f 2)"
+    REPOSITORY="$(echo "${BUILD_ARGS}" | cut -d':' -f 3)"
+    MODULE_VERSION="$(echo "${BUILD_ARGS}" | cut -d':' -f 4)"
+    BUILD_IMAGE="${BUILD_IMAGE_NAME}:${BUILD_IMAGE_TAG}"
+    docker_pkg_dir="$(dirname "${DOCKER_RPMBUILD_DIR}")"
+    BUILD_CMD="${docker_pkg_dir}/build-rpm ${DOCKER_RPMBUILD_DIR} ${SPEC_FILE_NAME} ${REPOSITORY} ${MODULE_VERSION}"
 
     # Setup specificed platform
     if [[ ! -z "${PLATFORM}" ]]; then
         # Enable multiarch/qemu-user-static
         docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-        DOCKER_OPTIONS="--platform ${PLATFORM}"
+        DOCKER_OPTIONS=(--platform "${PLATFORM}")
     fi
 
     # Update build image
-    docker pull ${DOCKER_OPTIONS} "${BUILD_IMAGE}"
+    docker pull "${DOCKER_OPTIONS[@]}" "${BUILD_IMAGE}"
 
     # Debug mode
     if [[ "${DEBUG}" = "yes" ]]; then
@@ -101,18 +131,31 @@ build() {
         echo "# Manual Build"
         echo "${BUILD_CMD}"
         echo
-        DOCKER_OPTIONS="${DOCKER_OPTIONS} -it"
+        DOCKER_OPTIONS+=(-it)
         BUILD_CMD="/bin/bash"
     fi
 
+    if [[ "${SIGN_RPMS}" = "yes" ]]; then
+        # Pass signing material into the container only for signing builds.
+        DOCKER_SIGN_OPTIONS=(
+            -e "SIGN_RPMS=${SIGN_RPMS}"
+            -e "GPG_FINGERPRINT=${GPG_FINGERPRINT:-}"
+            -e "GPG_PASSPHRASE=${GPG_PASSPHRASE}"
+            -e "GPG_KEY_PATH=${CONTAINER_GPG_KEY_PATH}"
+            -v "${GPG_KEY_PATH}:${CONTAINER_GPG_KEY_PATH}:ro"
+        )
+    fi
+
     # Build
+    setup_dir
     docker run \
-        --name ${BUILD_HOSTNAME} \
+        --name "${BUILD_HOSTNAME}" \
         -h "${BUILD_HOSTNAME}" \
-        -v "${SCRIPT_DIR}":$(dirname ${DOCKER_RPMBUILD_DIR}) \
+        -v "${SCRIPT_DIR}":"${docker_pkg_dir}" \
+        "${DOCKER_SIGN_OPTIONS[@]}" \
         --rm=true \
-        ${DOCKER_OPTIONS} \
-        ${BUILD_IMAGE} \
+        "${DOCKER_OPTIONS[@]}" \
+        "${BUILD_IMAGE}" \
         /bin/bash -c "${BUILD_CMD}"
 
     # Cleanup specificed platform
@@ -126,7 +169,7 @@ build() {
 main() {
     [[ $# -lt 1 ]] && usage && exit 1
 
-    while getopts dhp: OPT; do
+    while getopts dhsp: OPT; do
         case "${OPT}" in
             "d" )
                 DEBUG="yes" ;;
@@ -134,6 +177,8 @@ main() {
                 usage
                 exit 0
                 ;;
+            "s" )
+                SIGN_RPMS="yes" ;;
             "p" )
                 PLATFORM="${OPTARG}" ;;
             * )
@@ -144,7 +189,8 @@ main() {
     done
     shift $((OPTIND - 1))
 
+    validate_signing_env
     build "${@}"
 }
 
-[[ ${#BASH_SOURCE[@]} = 1 ]] && main "${@:+$@}"
+[[ "${BASH_SOURCE[0]}" == "$0" ]] && main "$@"

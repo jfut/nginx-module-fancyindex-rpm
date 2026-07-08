@@ -5,14 +5,14 @@ on:
     tags:
       - "v[0-9]+.[0-9]+.[0-9]+-*"
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
-  release:
+  build:
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
     permissions:
-      contents: write
+      contents: read
 
     strategy:
       max-parallel: 20
@@ -38,11 +38,27 @@ jobs:
       BUILD_HOSTNAME: ${{ matrix.image }}.github.integ.jp
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Write RPM signing key
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: |
+          # The build script can mount this file into the builder container.
+          printf '%s' "${GPG_PRIVATE_KEY}" > "${RUNNER_TEMP}/rpm-signing-key.asc"
+          chmod 600 "${RUNNER_TEMP}/rpm-signing-key.asc"
 
       - name: Build RPM
+        env:
+          GPG_KEY_PATH: ${{ runner.temp }}/rpm-signing-key.asc
+          GPG_FINGERPRINT: ${{ secrets.GPG_FINGERPRINT }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          ./build $(echo ${BUILD_IMAGE} | sed 's/_/:/g')
+          # Build and sign RPMs in the same distro container.
+          ./build -s $(echo ${BUILD_IMAGE} | sed 's/_/:/g')
 
       - name: Remove conflict files
         if: matrix.os != 'ubuntu-24.04-arm'
@@ -50,9 +66,37 @@ jobs:
           rm -f rpmbuild/SRPMS/*.rpm
           ls -al rpmbuild/SRPMS/
 
-      - name: Upload Assets
-        uses: AButler/upload-release-assets@34491005a5d7ec239a784e460807ce844fde7962 # v4.0.0
+      - name: Upload RPM artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          files: "rpmbuild/SRPMS/*.rpm;rpmbuild/RPMS/*/*.rpm"
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          release-tag: ${{ github.ref_name }}
+          name: rpm-${{ matrix.os }}-${{ matrix.image }}
+          path: rpmbuild/**/*.rpm
+
+  publish:
+    runs-on: ubuntu-24.04
+    needs: build
+    timeout-minutes: 10
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Download RPM artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: rpm-*
+          merge-multiple: true
+          path: release-artifacts
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@f06c13b6b1a9625abc9e6e439d9c05a8f2190e94 # v7.2.3
+        with:
+          distribution: goreleaser
+          version: v2.17.0
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
