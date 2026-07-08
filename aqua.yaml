@@ -1,0 +1,18 @@
+---
+# aqua - Declarative CLI Version Manager
+# https://aquaproj.github.io/
+# https://aquaproj.github.io/docs/reference/security/checksum/
+checksum:
+  enabled: true
+  require_checksum: true
+  supported_envs:
+    - linux
+registries:
+# https://github.com/aquaproj/aqua-registry
+- type: standard
+  ref: v4.531.0 # renovate: depName=aquaproj/aqua-registry
+# aqua update-checksum --prune
+packages:
+- name: casey/just@1.55.1
+- name: koalaman/shellcheck@v0.11.0
+- name: goreleaser/goreleaser@v2.17.0

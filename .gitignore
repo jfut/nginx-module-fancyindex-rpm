@@ -1,3 +1,7 @@
+dist/
+tmp/
+release-artifacts/
+
 rpmbuild/BUILD/*
 rpmbuild/BUILDROOT/*
 rpmbuild/RPMS/*

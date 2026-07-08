@@ -12,11 +12,11 @@ set -euo pipefail
 export LC_ALL=C
 
 ARCH=$(arch)
-BUILD_PACKAGES="autoconf automake libtool gcc make procps-ng rpm-build rpmdevtools"
+BUILD_PACKAGES=(autoconf automake libtool gcc make gnupg2 procps-ng rpm-build rpm-sign rpmdevtools)
 MAX_RETRY="10"
 
 if [[ $# -lt 2 ]]; then
-    echo $0 RPMBUILD_DIR SPEC_FILE_NAME [REPOSITORY] [MODULE_VERSION]
+    echo "$0 RPMBUILD_DIR SPEC_FILE_NAME [REPOSITORY] [MODULE_VERSION]"
     exit 1
 fi
 
@@ -35,6 +35,105 @@ if [[ -f /etc/rpm/macros.dist ]]; then
 fi
 RPM_DIST=.$(grep -o -E "^%el[0-9]*" "${RPM_MACROS}" | tr -d '%')
 echo "RPM_DIST: ${RPM_DIST} (${RPM_MACROS})"
+
+sign_rpms() {
+    local passfile
+    local public_key_file
+    local gpg_fingerprint="${GPG_FINGERPRINT:-}"
+    local secret_key_count
+    local imported_secret_fingerprint
+
+    cleanup_signing_passfile() {
+        rm -f "${passfile:-}"
+        rm -f "${public_key_file:-}"
+    }
+
+    : "${GPG_KEY_PATH:?GPG_KEY_PATH is required when SIGN_RPMS=yes}"
+    : "${GPG_PASSPHRASE:?GPG_PASSPHRASE is required when SIGN_RPMS=yes}"
+
+    mkdir -p "${HOME}/.gnupg"
+    chmod 700 "${HOME}/.gnupg"
+
+    # Allow rpmsign to pass the passphrase to gpg in non-interactive builds.
+    cat <<'EOF' > "${HOME}/.gnupg/gpg-agent.conf"
+allow-loopback-pinentry
+EOF
+
+    gpg --batch --import "${GPG_KEY_PATH}"
+    gpg-connect-agent reloadagent /bye
+
+    # Auto-select the only imported secret key when the caller did not
+    # specify one explicitly.
+    if [[ -z "${gpg_fingerprint}" ]]; then
+        secret_key_count="$(
+            gpg --batch --with-colons --list-secret-keys 2>/dev/null | \
+                awk -F: '/^sec:/ { count++ } END { print count + 0 }'
+        )"
+        if [[ "${secret_key_count}" -gt 1 ]]; then
+            echo "Multiple secret keys are available. Set GPG_FINGERPRINT explicitly." >&2
+            gpg --batch --list-secret-keys --keyid-format long >&2 || true
+            exit 1
+        fi
+    fi
+
+    # Resolve the actual secret key fingerprint visible in the container so
+    # rpmsign uses a key identifier that gpg can sign with.
+    if [[ -n "${gpg_fingerprint}" ]]; then
+        imported_secret_fingerprint="$(
+            gpg --batch --with-colons --list-secret-keys "${gpg_fingerprint}" 2>/dev/null | \
+                awk -F: '
+                    /^sec:/ || /^ssb:/ { want_fpr=1; next }
+                    want_fpr && /^fpr:/ { print $10; exit }
+                '
+        )"
+    else
+        imported_secret_fingerprint="$(
+            gpg --batch --with-colons --list-secret-keys 2>/dev/null | \
+                awk -F: '
+                    /^sec:/ || /^ssb:/ { want_fpr=1; next }
+                    want_fpr && /^fpr:/ { print $10; exit }
+                '
+        )"
+    fi
+    if [[ -z "${imported_secret_fingerprint}" ]]; then
+        echo "Failed to find an imported secret key for rpmsign." >&2
+        gpg --batch --list-secret-keys --keyid-format long >&2 || true
+        exit 1
+    fi
+
+    passfile="$(mktemp)"
+    public_key_file="$(mktemp)"
+    chmod 600 "${passfile}"
+    # Remove the temporary passphrase file even when signing fails midway.
+    trap cleanup_signing_passfile RETURN
+    printf '%s' "${GPG_PASSPHRASE}" > "${passfile}"
+
+    # rpm --checksig verifies against the RPM database, not the GnuPG keyring.
+    gpg --batch --armor --export "${imported_secret_fingerprint}" > "${public_key_file}"
+    rpm --import "${public_key_file}"
+
+    # Configure rpmsign to use the imported key during automated builds.
+    cat <<EOF > "${HOME}/.rpmmacros"
+%_gpg_name ${imported_secret_fingerprint}
+%_gpg_sign_cmd_extra_args --batch --pinentry-mode loopback --no-tty --passphrase-file ${passfile}
+EOF
+
+    while IFS= read -r -d '' rpm_file; do
+        # Skip files that already carry an rpm signature.
+        if rpm -qp --qf '%{OPENPGP} %{SIGPGP} %{SIGGPG} %{RSAHEADER} %{DSAHEADER}\n' "${rpm_file}" 2>/dev/null | \
+            grep -Fvq '(none) (none) (none) (none) (none)'; then
+            echo "Skipping already signed RPM: ${rpm_file}"
+            continue
+        fi
+
+        # Sign each rpm individually so any failing package stops the build.
+        rpmsign --addsign "${rpm_file}"
+        rpm --checksig "${rpm_file}"
+    done < <(find RPMS SRPMS -type f -name "*${RPM_DIST}*.rpm" -print0)
+
+    trap - RETURN
+    cleanup_signing_passfile
+}
 
 # Install nginx and setup spec file
 echo
@@ -58,7 +157,7 @@ else
 
     dnf -y module reset nginx
     echo "Installing nginx:${MODULE_VERSION} on ${REPOSITORY}"
-    dnf -y module install nginx:${MODULE_VERSION}/common
+    dnf -y module install nginx:"${MODULE_VERSION}"/common
 fi
 # 2:1.20.1-20.el9.alma.1 -> 2
 NGINX_EPOCH_VERSION=$(dnf info -q nginx | grep ^Epoch |  awk '{ print $3 }')
@@ -70,19 +169,20 @@ rm -f "SPECS/${SPEC_FILE_NAME}.tmp"
 
 # Install dependencies
 echo
-echo "Installing build tools and dependencies: ${BUILD_PACKAGES} dnf-plugins-core"
-RETRY=0
-until dnf -y install ${BUILD_PACKAGES} dnf-plugins-core || [[ "${RETRY}" -eq "${MAX_RETRY}" ]];
+echo "Installing build tools and dependencies: ${BUILD_PACKAGES[*]} dnf-plugins-core"
+INSTALL_RETRY=0
+until dnf -y install "${BUILD_PACKAGES[@]}" dnf-plugins-core || [[ "${INSTALL_RETRY}" -eq "${MAX_RETRY}" ]];
 do
     echo
-    sleep $((RETRY++))
-    echo "Retry: dnf -y install ${BUILD_PACKAGES} (retry: ${RETRY})"
+    sleep $((INSTALL_RETRY++))
+    echo "Retry: dnf -y install ${BUILD_PACKAGES[*]} (retry: ${INSTALL_RETRY})"
 done
-until dnf -y builddep "SPECS/${SPEC_FILE_NAME}" || [[ "${RETRY}" -eq "${MAX_RETRY}" ]];
+BUILDDEP_RETRY=0
+until dnf -y builddep "SPECS/${SPEC_FILE_NAME}" || [[ "${BUILDDEP_RETRY}" -eq "${MAX_RETRY}" ]];
 do
-    sleep $((RETRY++))
+    sleep $((BUILDDEP_RETRY++))
     echo
-    echo "Retry: dnf -y builddep \"SPECS/${SPEC_FILE_NAME}\" (retry: ${RETRY})"
+    echo "Retry: dnf -y builddep \"SPECS/${SPEC_FILE_NAME}\" (retry: ${BUILDDEP_RETRY})"
 done
 
 # Build RPM files
@@ -106,10 +206,7 @@ if [[ ! -z "${REPOSITORY}" ]]; then
         RPM_DIST=$(echo "${RPM_DIST}" | sed -r "s/^\.(.*)/.module_\1.${MODULE_VERSION}/")
     fi
 fi
-echo rpmbuild \
-    --define \"%_topdir ${RPMBUILD_DIR}\" \
-    --define \"%dist ${RPM_DIST}\" \
-    -ba \"SPECS/${SPEC_FILE_NAME}\"
+echo "rpmbuild --define \"%_topdir ${RPMBUILD_DIR}\" --define \"%dist ${RPM_DIST}\" -ba \"SPECS/${SPEC_FILE_NAME}\""
 rpmbuild \
     --define "%_topdir ${RPMBUILD_DIR}" \
     --define "%dist ${RPM_DIST}" \
@@ -117,16 +214,17 @@ rpmbuild \
 
 # Build binary package for x86_64_v2 on x86_64 from el10 or later
 if [[ "${ARCH}" = "x86_64" ]] && [[ "${RPM_DIST}" = ".el10" ]]; then
-    echo rpmbuild \
-        --define \"%_topdir ${RPMBUILD_DIR}\" \
-        --define \"%dist ${RPM_DIST}\" \
-        -bb \"SPECS/${SPEC_FILE_NAME}\" \
-        --target x86_64_v2
+    echo "rpmbuild --define \"%_topdir ${RPMBUILD_DIR}\" --define \"%dist ${RPM_DIST}\" -bb \"SPECS/${SPEC_FILE_NAME}\" --target x86_64_v2"
     rpmbuild \
         --define "%_topdir ${RPMBUILD_DIR}" \
         --define "%dist ${RPM_DIST}" \
         -bb "SPECS/${SPEC_FILE_NAME}" \
         --target x86_64_v2
+fi
+
+if [[ "${SIGN_RPMS:-no}" = "yes" ]]; then
+    # Sign the generated RPMs in the same distro environment used for the build.
+    sign_rpms
 fi
 
 echo "Change permissions to delete conflicting files when releasing via GitHub Actions:"
