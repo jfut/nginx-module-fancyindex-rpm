@@ -12,7 +12,7 @@ set -euo pipefail
 export LC_ALL=C
 
 ARCH=$(arch)
-BUILD_PACKAGES=(autoconf automake libtool gcc make gnupg2 procps-ng rpm-build rpm-sign rpmdevtools)
+BUILD_PACKAGES=(autoconf automake cpio libtool gcc make gnupg2 procps-ng rpm-build rpm-sign rpmdevtools)
 MAX_RETRY="10"
 
 if [[ $# -lt 2 ]]; then
@@ -35,6 +35,63 @@ if [[ -f /etc/rpm/macros.dist ]]; then
 fi
 RPM_DIST=.$(grep -o -E "^%el[0-9]*" "${RPM_MACROS}" | tr -d '%')
 echo "RPM_DIST: ${RPM_DIST} (${RPM_MACROS})"
+
+prepare_nginx_source() {
+    local nginx_source_dir="tmp/nginx-source"
+    local nginx_srpm_name
+    local nginx_srpm_path
+    local nginx_spec_path
+
+    nginx_srpm_name=$(rpm -q --qf '%{SOURCERPM}\n' nginx | head -n 1)
+    if [[ -z "${nginx_srpm_name}" || "${nginx_srpm_name}" = *"not installed"* ]]; then
+        echo "Error: failed to detect nginx source RPM name"
+        exit 1
+    fi
+
+    echo
+    echo "Preparing nginx source from ${nginx_srpm_name}"
+    rm -rf "${nginx_source_dir}"
+    mkdir -p \
+        "${nginx_source_dir}/BUILD" \
+        "${nginx_source_dir}/BUILDROOT" \
+        "${nginx_source_dir}/RPMS" \
+        "${nginx_source_dir}/SOURCES" \
+        "${nginx_source_dir}/SPECS" \
+        "${nginx_source_dir}/SRPMS" \
+        "${nginx_source_dir}/extract" \
+        SOURCES
+
+    dnf config-manager --set-enabled appstream-source baseos-source crb-source powertools-source 2>/dev/null || true
+    dnf -y download --source --destdir "${nginx_source_dir}" nginx
+
+    nginx_srpm_path=$(find "${nginx_source_dir}" -maxdepth 1 -name "${nginx_srpm_name}" -print -quit)
+    if [[ -z "${nginx_srpm_path}" ]]; then
+        echo "Error: failed to download matching nginx source RPM: ${nginx_srpm_name}"
+        exit 1
+    fi
+
+    rpm2cpio "${nginx_srpm_path}" | (cd "${nginx_source_dir}/extract" && cpio -idm --quiet)
+    find "${nginx_source_dir}/extract" -maxdepth 1 -type f -name '*.spec' -exec mv {} "${nginx_source_dir}/SPECS/" \;
+    find "${nginx_source_dir}/extract" -maxdepth 1 -type f -exec mv {} "${nginx_source_dir}/SOURCES/" \;
+
+    nginx_spec_path=$(find "${nginx_source_dir}/SPECS" -maxdepth 1 -name '*.spec' -print -quit)
+    if [[ -z "${nginx_spec_path}" ]]; then
+        echo "Error: failed to find nginx spec file in source RPM"
+        exit 1
+    fi
+
+    rpmbuild \
+        --define "%_topdir ${RPMBUILD_DIR}/${nginx_source_dir}" \
+        --nodeps \
+        -bp "${nginx_spec_path}"
+
+    if [[ ! -d "${nginx_source_dir}/BUILD/nginx-${NGINX_VERSION}" ]]; then
+        echo "Error: patched nginx-${NGINX_VERSION} source was not created"
+        exit 1
+    fi
+
+    tar -C "${nginx_source_dir}/BUILD" -czf "SOURCES/nginx-${NGINX_VERSION}.tar.gz" "nginx-${NGINX_VERSION}"
+}
 
 sign_rpms() {
     local passfile
@@ -189,6 +246,11 @@ done
 if [[ ! -d SOURCES ]]; then
     mkdir SOURCES
 fi
+
+# Prepare distribution-patched nginx source
+echo
+echo "Preparing distribution-patched nginx source"
+prepare_nginx_source
 
 if [[ "${RPM_DIST}" = ".el8" ]]; then
     # el8
