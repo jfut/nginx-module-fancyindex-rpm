@@ -14,7 +14,7 @@ Release: 8%{?dist}
 License: BSD-2-Clause
 URL: https://github.com/sto/ngx_http_fancyindex_module
 
-Source0: https://nginx.org/download/nginx-%{nginx_version}.tar.gz
+Source0: nginx-%{nginx_version}.tar.gz
 Source1: https://github.com/aperezdc/ngx-fancyindex/releases/download/v%{version}/ngx-fancyindex-%{version}.tar.xz
 
 Requires: nginx = %{nginx_epoch_version}:%{nginx_version}
@@ -79,6 +79,9 @@ echo 'load_module "%{nginx_moduledir}/ngx_http_fancyindex_module.so";' \
 %config(noreplace) %{nginx_moduleconfdir}/mod-*.conf
 
 %changelog
+* Thu Jul  9 2026 Jun Futagawa <jfut@integ.jp> 0.5.2-9
+- fix: build against distribution-patched nginx source
+
 * Mon Jul  7 2025 Jun Futagawa <jfut@integ.jp> 0.5.2-8
 - feat: add support for AlmaLinux 10 x86_64_v2 @jfut (#31)
 - ci: update workflows to use arm runner @jfut (#33)
