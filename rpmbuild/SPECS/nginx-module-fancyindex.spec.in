@@ -80,8 +80,8 @@ echo 'load_module "%{nginx_moduledir}/ngx_http_fancyindex_module.so";' \
 
 %changelog
 * Thu Jul  9 2026 Jun Futagawa <jfut@integ.jp> 0.6.0-1
-- Update to version 0.6.0
 - fix: build against distribution-patched nginx source @jfut (#38)
+- build: update fancyindex module to 0.6.0 @jfut (#39)
 
 * Mon Jul  7 2025 Jun Futagawa <jfut@integ.jp> 0.5.2-8
 - feat: add support for AlmaLinux 10 x86_64_v2 @jfut (#31)

@@ -50,48 +50,48 @@ RHEL/AlmaLinux/Rocky Linux 10:
 
 ```bash
 # nginx 1.26 for x86_64
-dnf install nginx-module-fancyindex-0.5.2-8.el10.x86_64.rpm
+dnf install nginx-module-fancyindex-0.6.0-1.el10.x86_64.rpm
 
 # nginx 1.26 for x86_64_v2
-dnf install nginx-module-fancyindex-0.5.2-8.el10.x86_64_v2.rpm
+dnf install nginx-module-fancyindex-0.6.0-1.el10.x86_64_v2.rpm
 
 # nginx 1.26 for aarch64
-dnf install nginx-module-fancyindex-0.5.2-8.el10.aarch64.rpm
+dnf install nginx-module-fancyindex-0.6.0-1.el10.aarch64.rpm
 ```
 
 RHEL/AlmaLinux/Rocky Linux 9:
 
 ```bash
 # Non-modular nginx version 1.20
-dnf install nginx-module-fancyindex-0.5.2-8.el9.x86_64.rpm
+dnf install nginx-module-fancyindex-0.6.0-1.el9.x86_64.rpm
 
 # AppStream module nginx 1.22 stream
-dnf install nginx-module-fancyindex-0.5.2-8.module_el9.1.22.x86_64.rpm
+dnf install nginx-module-fancyindex-0.6.0-1.module_el9.1.22.x86_64.rpm
 
 # AppStream module nginx 1.24 stream
-dnf install nginx-module-fancyindex-0.5.2-8.module_el9.1.24.x86_64.rpm
+dnf install nginx-module-fancyindex-0.6.0-1.module_el9.1.24.x86_64.rpm
 
 # AppStream module nginx 1.26 stream
-dnf install nginx-module-fancyindex-0.5.2-8.module_el9.1.26.x86_64.rpm
+dnf install nginx-module-fancyindex-0.6.0-1.module_el9.1.26.x86_64.rpm
 ```
 
 RHEL/AlmaLinux/Rocky Linux 8:
 
 ```bash
 # AppStream module nginx 1.16 stream
-dnf install nginx-module-fancyindex-0.5.2-8.module_el8.1.16.x86_64.rpm
+dnf install nginx-module-fancyindex-0.6.0-1.module_el8.1.16.x86_64.rpm
 
 # AppStream module nginx 1.18 stream
-dnf install nginx-module-fancyindex-0.5.2-8.module_el8.1.18.x86_64.rpm
+dnf install nginx-module-fancyindex-0.6.0-1.module_el8.1.18.x86_64.rpm
 
 # AppStream module nginx 1.20 stream
-dnf install nginx-module-fancyindex-0.5.2-8.module_el8.1.20.x86_64.rpm
+dnf install nginx-module-fancyindex-0.6.0-1.module_el8.1.20.x86_64.rpm
 
 # AppStream module nginx 1.22 stream
-dnf install nginx-module-fancyindex-0.5.2-8.module_el8.1.22.x86_64.rpm
+dnf install nginx-module-fancyindex-0.6.0-1.module_el8.1.22.x86_64.rpm
 
 # AppStream module nginx 1.24 stream
-dnf install nginx-module-fancyindex-0.5.2-8.module_el8.1.24.x86_64.rpm
+dnf install nginx-module-fancyindex-0.6.0-1.module_el8.1.24.x86_64.rpm
 ```
 
 ## Configuration
