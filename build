@@ -65,6 +65,7 @@ Usage:
         ${PACKAGER} -p linux/arm64/v8 almalinux:9
         ${PACKAGER} -p linux/arm64/v8 almalinux:9:appstream:1.22
         ${PACKAGER} -p linux/arm64/v8 almalinux:9:appstream:1.24
+        ${PACKAGER} -p linux/arm64/v8 almalinux:9:appstream:1.26
 
 _EOF_
 }
