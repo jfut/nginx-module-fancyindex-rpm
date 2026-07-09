@@ -37,10 +37,16 @@ RPM_DIST=.$(grep -o -E "^%el[0-9]*" "${RPM_MACROS}" | tr -d '%')
 echo "RPM_DIST: ${RPM_DIST} (${RPM_MACROS})"
 
 prepare_nginx_source() {
-    local nginx_source_dir="tmp/nginx-source"
+    local nginx_source_dir
     local nginx_srpm_name
     local nginx_srpm_path
     local nginx_spec_path
+
+    cleanup_nginx_source_dir() {
+        if [[ -n "${nginx_source_dir:-}" ]]; then
+            rm -rf "${nginx_source_dir}"
+        fi
+    }
 
     nginx_srpm_name=$(rpm -q --qf '%{SOURCERPM}\n' nginx | head -n 1)
     if [[ -z "${nginx_srpm_name}" || "${nginx_srpm_name}" = *"not installed"* ]]; then
@@ -50,7 +56,9 @@ prepare_nginx_source() {
 
     echo
     echo "Preparing nginx source from ${nginx_srpm_name}"
-    rm -rf "${nginx_source_dir}"
+    # Use a unique workspace under tmp/ so concurrent builds do not collide.
+    nginx_source_dir=$(mktemp -d "${RPMBUILD_DIR}/tmp/nginx-source.XXXXXX")
+    trap cleanup_nginx_source_dir RETURN
     mkdir -p \
         "${nginx_source_dir}/BUILD" \
         "${nginx_source_dir}/BUILDROOT" \
@@ -71,6 +79,7 @@ prepare_nginx_source() {
     fi
 
     rpm2cpio "${nginx_srpm_path}" | (cd "${nginx_source_dir}/extract" && cpio -idm --quiet)
+    rm -f "${nginx_srpm_path}"
     find "${nginx_source_dir}/extract" -maxdepth 1 -type f -name '*.spec' -exec mv {} "${nginx_source_dir}/SPECS/" \;
     find "${nginx_source_dir}/extract" -maxdepth 1 -type f -exec mv {} "${nginx_source_dir}/SOURCES/" \;
 
@@ -81,7 +90,7 @@ prepare_nginx_source() {
     fi
 
     rpmbuild \
-        --define "%_topdir ${RPMBUILD_DIR}/${nginx_source_dir}" \
+        --define "%_topdir ${nginx_source_dir}" \
         --nodeps \
         -bp "${nginx_spec_path}"
 
@@ -91,6 +100,8 @@ prepare_nginx_source() {
     fi
 
     tar -C "${nginx_source_dir}/BUILD" -czf "SOURCES/nginx-${NGINX_VERSION}.tar.gz" "nginx-${NGINX_VERSION}"
+    trap - RETURN
+    cleanup_nginx_source_dir
 }
 
 sign_rpms() {
